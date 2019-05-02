@@ -1,0 +1,47 @@
+# do memory_code_run_msim_rtl_vhdl.do
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Model Technology ModelSim ALTERA vmap 10.4d Lib Mapping Utility 2015.12 Dec 30 2015
+# vmap work rtl_work 
+# Modifying /home/mohil/altera_lite/16.0/modelsim_ase/linuxaloem/../modelsim.ini
+# 
+# vcom -93 -work work {/home/mohil/Desktop/EE739/Memory/memory_code.vhdl}
+# Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+# Start time: 23:48:17 on May 01,2019
+# vcom -reportprogress 300 -93 -work work /home/mohil/Desktop/EE739/Memory/memory_code.vhdl 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory_code
+# -- Compiling architecture syn of memory_code
+# End time: 23:48:17 on May 01,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+vsim work.memory_code
+# vsim work.memory_code 
+# Start time: 23:48:25 on May 01,2019
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.memory_code(syn)
+view -new wave
+# -new not supported on PE
+add wave -position insertpoint  \
+sim:/memory_code/clk \
+sim:/memory_code/we \
+sim:/memory_code/a \
+sim:/memory_code/di \
+sim:/memory_code/do
+force -freeze sim:/memory_code/we 0 0
+force -freeze sim:/memory_code/a 0000000000000000 0
+force -freeze sim:/memory_code/clk 1 0, 0 {50 ps} -r 100
+run
+force -freeze sim:/memory_code/a 0000000000000001 0
+run
+# End time: 23:55:35 on May 01,2019, Elapsed time: 0:07:10
+# Errors: 1, Warnings: 0

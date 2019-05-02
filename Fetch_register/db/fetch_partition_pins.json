@@ -1,0 +1,413 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "inst_1_valid",
+					"strict" : false
+				},
+				{
+					"name" : "inst_2_valid",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[0]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[1]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[2]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[3]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[4]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[5]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[6]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[7]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[8]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[9]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[10]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[11]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[12]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[13]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[14]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr1[15]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[0]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[1]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[2]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[3]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[4]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[5]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[6]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[7]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[8]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[9]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[10]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[11]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[12]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[13]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[14]",
+					"strict" : false
+				},
+				{
+					"name" : "Instr2[15]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[0]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[1]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[2]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[3]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[4]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[5]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[6]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[7]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[8]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[9]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[10]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[11]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[12]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[13]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[14]",
+					"strict" : false
+				},
+				{
+					"name" : "PC[15]",
+					"strict" : false
+				},
+				{
+					"name" : "stall_in",
+					"strict" : false
+				},
+				{
+					"name" : "instr_invalidate_in",
+					"strict" : false
+				},
+				{
+					"name" : "clk",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[16]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[17]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[18]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[19]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[20]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[21]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[22]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[23]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[24]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[25]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[26]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[27]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[28]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[29]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[30]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[31]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[0]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[1]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[2]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[3]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[4]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[5]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[6]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[7]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[8]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[9]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[10]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[11]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[12]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[13]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[14]",
+					"strict" : false
+				},
+				{
+					"name" : "Mem_in[15]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[0]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[1]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[2]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[3]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[4]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[5]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[6]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[7]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[8]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[9]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[10]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[11]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[12]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[13]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[14]",
+					"strict" : false
+				},
+				{
+					"name" : "PC_in[15]",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

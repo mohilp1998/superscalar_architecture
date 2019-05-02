@@ -1,0 +1,78 @@
+# do fetch_run_msim_rtl_vhdl.do
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Model Technology ModelSim ALTERA vmap 10.4d Lib Mapping Utility 2015.12 Dec 30 2015
+# vmap work rtl_work 
+# Modifying /home/mohil/altera_lite/16.0/modelsim_ase/linuxaloem/../modelsim.ini
+# 
+# vcom -93 -work work {/home/mohil/Desktop/EE739/Fetch_register/fetch.vhdl}
+# Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+# Start time: 19:15:42 on May 02,2019
+# vcom -reportprogress 300 -93 -work work /home/mohil/Desktop/EE739/Fetch_register/fetch.vhdl 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity fetch
+# -- Compiling architecture arch of fetch
+# End time: 19:15:42 on May 02,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+vsim work.fetch
+# vsim work.fetch 
+# Start time: 19:15:44 on May 02,2019
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.fetch(arch)
+add wave -position insertpoint  \
+sim:/fetch/clk \
+sim:/fetch/Mem_in \
+sim:/fetch/PC_in \
+sim:/fetch/stall_in \
+sim:/fetch/instr_invalidate_in \
+sim:/fetch/inst_1_valid \
+sim:/fetch/inst_2_valid \
+sim:/fetch/Instr1 \
+sim:/fetch/Instr2 \
+sim:/fetch/PC
+force -freeze sim:/fetch/clk 1 0, 0 {50 ps} -r 100
+force -freeze sim:/fetch/Mem_in 00000000000000001111111111111111 0
+force -freeze sim:/fetch/PC_in 010101010101010101 0
+# Value length (18) does not equal array index length (16).
+# 
+# ** Error: (vsim-4011) Invalid force value: 010101010101010101 0.
+# 
+force -freeze sim:/fetch/PC_in 0011001100110011 0
+force -freeze sim:/fetch/stall_in 0 0
+force -freeze sim:/fetch/instr_invalidate_in 0 0
+run
+run
+run
+force -freeze sim:/fetch/stall_in 1 0
+run
+run
+force -freeze sim:/fetch/Mem_in 00000000000000010111111111111111 0
+run
+run
+run
+run
+force -freeze sim:/fetch/instr_invalidate_in 1 0
+run
+run
+run
+run
+run
+force -freeze sim:/fetch/stall_in 0 0
+run
+run
+run
+force -freeze sim:/fetch/instr_invalidate_in 0 0
+run
+run
+# End time: 19:18:41 on May 02,2019, Elapsed time: 0:02:57
+# Errors: 1, Warnings: 0

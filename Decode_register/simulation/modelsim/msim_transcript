@@ -1,0 +1,126 @@
+# do decode_run_msim_rtl_vhdl.do
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Model Technology ModelSim ALTERA vmap 10.4d Lib Mapping Utility 2015.12 Dec 30 2015
+# vmap work rtl_work 
+# Modifying /home/mohil/altera_lite/16.0/modelsim_ase/linuxaloem/../modelsim.ini
+# 
+# vcom -93 -work work {/home/mohil/Desktop/EE739/Decode_register/decode.vhdl}
+# Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+# Start time: 20:30:10 on May 02,2019
+# vcom -reportprogress 300 -93 -work work /home/mohil/Desktop/EE739/Decode_register/decode.vhdl 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity decode
+# -- Compiling architecture arch of decode
+# End time: 20:30:10 on May 02,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+vsim work.decode
+# vsim work.decode 
+# Start time: 20:30:14 on May 02,2019
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.decode(arch)
+add wave -position insertpoint  \
+sim:/decode/clk \
+sim:/decode/inst_1_valid_in \
+sim:/decode/inst_2_valid_in \
+sim:/decode/Instr1_in \
+sim:/decode/Instr2_in \
+sim:/decode/PC_in \
+sim:/decode/Nxt_PC_in \
+sim:/decode/stall_in \
+sim:/decode/instr_invalidate_in \
+sim:/decode/I1_valid \
+sim:/decode/I1_op_code \
+sim:/decode/I1_op_cz \
+sim:/decode/I1_dest_code \
+sim:/decode/I1_operand_1_code \
+sim:/decode/I1_operand_2_code \
+sim:/decode/I1_Imm \
+sim:/decode/I1_PC \
+sim:/decode/I1_Nxt_PC \
+sim:/decode/I1_BTAG \
+sim:/decode/I1_self_tag \
+sim:/decode/I2_valid \
+sim:/decode/I2_op_code \
+sim:/decode/I2_op_cz \
+sim:/decode/I2_dest_code \
+sim:/decode/I2_operand_1_code \
+sim:/decode/I2_operand_2_code \
+sim:/decode/I2_Imm \
+sim:/decode/I2_PC \
+sim:/decode/I2_Nxt_PC \
+sim:/decode/I2_BTAG \
+sim:/decode/I2_self_tag \
+sim:/decode/stall_out \
+sim:/decode/current_BTAG
+force -freeze sim:/decode/clk 1 0, 0 {50 ps} -r 100
+force -freeze sim:/decode/inst_1_valid_in 1 0
+force -freeze sim:/decode/inst_2_valid_in 1 0
+force -freeze sim:/decode/Instr1_in 0000010010101010 0
+force -freeze sim:/decode/Instr2_in 1100011001110010 0
+force -freeze sim:/decode/PC_in 0000000000000001 0
+force -freeze sim:/decode/Nxt_PC_in 0000000000000011 0
+force -freeze sim:/decode/stall_in 0 0
+force -freeze sim:/decode/instr_invalidate_in 0 0
+run
+run
+force -freeze sim:/decode/Instr2_in 0000011001110010 0
+run
+run
+run
+run
+force -freeze sim:/decode/Instr2_in 1000011001110010 0
+run
+run
+run
+run
+restart
+force -freeze sim:/decode/clk 1 0, 0 {50 ps} -r 100
+force -freeze sim:/decode/inst_1_valid_in 1 0
+force -freeze sim:/decode/inst_2_valid_in 1 0
+force -freeze sim:/decode/Instr1_in 0000000000000101 0
+force -freeze sim:/decode/Instr2_in 0000010101001101 0
+force -freeze sim:/decode/PC_in 0000000000000011 0
+force -freeze sim:/decode/Nxt_PC_in 0000000000001111 0
+force -freeze sim:/decode/stall_in 0 0
+force -freeze sim:/decode/instr_invalidate_in 0 0
+run
+run
+run
+run
+run
+run
+run
+run
+force -freeze sim:/decode/Instr2_in 1000010101001101 0
+run
+run
+run
+run
+force -freeze sim:/decode/Instr2_in 0000010101001101 0
+run
+run
+run
+run
+force -freeze sim:/decode/Instr2_in 1000010101001101 0
+run
+run
+force -freeze sim:/decode/Instr2_in 0000010101001101 0
+run
+run
+run
+force -freeze sim:/decode/Instr2_in 1000010101001101 0
+run
+run
+# End time: 21:01:34 on May 02,2019, Elapsed time: 0:31:20
+# Errors: 0, Warnings: 0
