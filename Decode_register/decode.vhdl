@@ -254,6 +254,7 @@ begin
 								I1_Nxt_PC_var := std_logic_vector(unsigned(PC_in) + 1);
 
 								I1_BTAG_var := current_BTAG;
+
 								if (current_BTAG = "000") then
 									current_BTAG_var := "001";
 									I1_self_tag_var := "001";
@@ -300,8 +301,6 @@ begin
 								I1_Nxt_PC_var := std_logic_vector(unsigned(PC_in) + 1);
 
 								I1_BTAG_var := current_BTAG;
-								I1_self_tag_var := std_logic_vector(unsigned(current_BTAG) + 1);
-								current_BTAG_var := std_logic_vector(unsigned(current_BTAG) + 1);
 
 								I1_BTAG_var := current_BTAG;
 								if (current_BTAG = "000") then
@@ -350,8 +349,6 @@ begin
 								I1_Nxt_PC_var := std_logic_vector(unsigned(PC_in) + 1);
 
 								I1_BTAG_var := current_BTAG;
-								I1_self_tag_var := std_logic_vector(unsigned(current_BTAG) + 1);
-								current_BTAG_var := std_logic_vector(unsigned(current_BTAG) + 1);
 
 								I1_BTAG_var := current_BTAG;
 								if (current_BTAG = "000") then
@@ -523,6 +520,7 @@ begin
 								I2_Nxt_PC_var := Nxt_PC_in;
 
 								I2_BTAG_var := current_BTAG;
+
 								if (current_BTAG = "000") then
 									current_BTAG_var := "001";
 									I2_self_tag_var := "001";
@@ -568,6 +566,7 @@ begin
 								I2_Nxt_PC_var := Nxt_PC_in;
 
 								I2_BTAG_var := current_BTAG;
+
 								if (current_BTAG = "000") then
 									current_BTAG_var := "001";
 									I2_self_tag_var := "001";
@@ -613,6 +612,7 @@ begin
 								I2_Nxt_PC_var := Nxt_PC_in;
 
 								I2_BTAG_var := current_BTAG;
+								
 								if (current_BTAG = "000") then
 									current_BTAG_var := "001";
 									I2_self_tag_var := "001";
