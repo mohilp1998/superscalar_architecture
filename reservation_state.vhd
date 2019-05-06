@@ -77,6 +77,7 @@ entity reservation_state is
 
 
        broadcast1_rename_in:in std_logic_vector(5 downto 0);--refers to rename register broadcasted
+       broadcast1_orig_destn_in:in std_logic_vector(2 downto 0);--used if a broadcast signal matches with arrival of other instr with same src register
        broadcast1_data_in:in std_logic_vector(15 downto 0); --refers to data of rename register broadcasted
        broadcast1_valid_in: in std_logic;--refers whether broadcasted data is valid or not
 
@@ -93,6 +94,7 @@ entity reservation_state is
 
 
        broadcast2_rename_in:in std_logic_vector(5 downto 0);--refers to rename register broadcasted
+       broadcast2_orig_destn_in:in std_logic_vector(2 downto 0);--used if a broadcast signal matches with arrival of other instr with same src register
        broadcast2_data_in:in std_logic_vector(15 downto 0); --refers to data of rename register broadcasted
        broadcast2_valid_in: in std_logic;--refers whether broadcasted data is valid or not 
        
@@ -109,6 +111,7 @@ entity reservation_state is
 
 
        broadcast3_rename_in:in std_logic_vector(5 downto 0);--refers to rename register broadcasted
+       broadcast3_orig_destn_in:in std_logic_vector(2 downto 0);--used if a broadcast signal matches with arrival of other instr with same src register
        broadcast3_data_in:in std_logic_vector(15 downto 0); --refers to data of rename register broadcasted
        broadcast3_valid_in: in std_logic;--refers whether broadcasted data is valid or not 
        -- 
@@ -116,6 +119,7 @@ entity reservation_state is
        
        
        broadcast4_rename_in:in std_logic_vector(5 downto 0);--refers to rename register broadcasted
+       broadcast4_orig_destn_in:in std_logic_vector(2 downto 0);--used if a broadcast signal matches with arrival of other instr with same src register
        broadcast4_data_in:in std_logic_vector(15 downto 0); --refers to data of rename register broadcasted
        broadcast4_valid_in: in std_logic;--refers whether broadcasted data is valid or not 
        
@@ -130,8 +134,33 @@ entity reservation_state is
 
        broadcast4_btag_in:in std_logic_vector(2 downto 0);--refers to btag of branch signal useful for updating branch copies
 
-       branch_mispredict_broadcast_in:in std_logic_vector(1 downto 0); --00 implies no misprediction 01 implies first branch mispredicted 10 implies second branch mispredicted 
+       branch_mispredict_broadcast_in:in std_logic_vector(1 downto 0); --00 implies no misprediction 01 implies first branch mispredicted 10 implies second branch mispredicted
+
+
+       broadcast5_rename_in:in std_logic_vector(5 downto 0);
+       broadcast5_orig_destn_in:in std_logic_vector(2 downto 0);--used if a broadcast signal matches with arrival of other instr with same src register 
+       broadcast5_data_in:in std_logic_vector(15 downto 0); --refers to data of rename register broadcasted
+       broadcast5_valid_in: in std_logic;--refers whether broadcasted data is valid or not \
+       broadcast5_btag_in:in std_logic_vector(2 downto 0);
        
+
+       --entry in ROB output
+
+       curr_pc1_rob_out:out std_logic_vector(15 downto 0);
+       destn_code1_rob_out:out std_logic_vector(2 downto 0);
+       op_code1_rob_out:out std_logic_vector(3 downto 0);
+       destn_rename1_rob_out:out std_logic_vector(5 downto 0);
+       destn_rename_c1_rob_out:out std_logic_vector(2 downto 0);
+       destn_rename_z1_rob_out:out std_logic_vector(2 downto 0);
+
+       curr_pc2_rob_out:out std_logic_vector(15 downto 0);
+       destn_code2_rob_out:out std_logic_vector(2 downto 0);
+       op_code2_rob_out:out std_logic_vector(3 downto 0);
+       destn_rename2_rob_out:out std_logic_vector(5 downto 0);
+       destn_rename_c2_rob_out:out std_logic_vector(2 downto 0);
+       destn_rename_z2_rob_out:out std_logic_vector(2 downto 0);
+
+
 
 
         
@@ -278,7 +307,7 @@ signal rename_free:std_logic;--whether rename register is free or not.
 
 signal alu_instr_valid_out_internal:slv_array_t(0 to 9);--refers to the signal which would drive alu_instr_valid
 signal alu_comp_valid_out_internal:slv_array_t(0 to 9);
-signal temp:slv_array_t(0 to 9);--used for inversion
+--signal temp:slv_array_t(0 to 9);--used for inversion
 signal alu_op_code_out_internal: slv4_array_t(0 to 9);
 signal alu_op_code_cz_out_internal: slv2_array_t(0 to 9);
 signal alu_destn_rename_code_out_internal: slv6_array_t(0 to 9);
@@ -427,7 +456,7 @@ signal operand_zero_value_internal_instr2:std_logic;--denotes value of bit if va
 
 signal branch1_done:std_logic;--goes high just in next clock cycle after branch signal of self id 1 is entered in table
 signal branch2_done:std_logic;--goes high just in next clock cycle after branch signal of self id 2 is entered in table
-signal branch3_done:std_logic;--goes high just in next clock cycle after branch signal of self id 3 is entered in table
+--signal branch3_done:std_logic;--goes high just in next clock cycle after branch signal of self id 3 is entered in table
 
 
 
@@ -679,7 +708,7 @@ signal br2_jmp_self_tag_out_internal: slv3_array_t(0 to 9);
 
 begin
 
-temp<=(others=>'1');
+--temp<=(others=>'1');
 
 process(free_reg)
 
@@ -1047,7 +1076,12 @@ process (op_code1_in,op_code2_in,alu_entry_free,ls_entry_free,jmp_entry_free,ren
 
 
 
-process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code1_in,opr2_code1_in,opr3_code1_in,carry_value_valid,carry_value,carry_rename_rf,zero_value_valid,zero_value,zero_rename_rf)----------------------finding what to write in RS for instr1 includes carry and zero flag as well
+process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code1_in,opr2_code1_in,opr3_code1_in,carry_value_valid,carry_value,carry_rename_rf,zero_value_valid,zero_value,zero_rename_rf,
+        broadcast1_orig_destn_in,broadcast1_rename_in,broadcast1_valid_in , broadcast2_orig_destn_in,broadcast2_rename_in,broadcast2_valid_in ,broadcast3_orig_destn_in,broadcast3_rename_in,broadcast3_valid_in,
+        broadcast4_orig_destn_in,broadcast4_rename_in,broadcast4_valid_in,broadcast5_orig_destn_in,broadcast5_rename_in,broadcast5_valid_in ,broadcast1_c_flag_in,broadcast1_c_flag_rename_in
+        ,broadcast1_c_flag_valid_in,broadcast2_c_flag_in,broadcast2_c_flag_rename_in,broadcast2_c_flag_valid_in ,broadcast4_c_flag_in,broadcast4_c_flag_rename_in
+        ,broadcast4_c_flag_valid_in,broadcast1_z_flag_in,broadcast1_z_flag_rename_in,broadcast1_z_flag_valid_in,broadcast2_z_flag_in,broadcast2_z_flag_rename_in,broadcast2_z_flag_valid_in 
+        ,broadcast4_z_flag_in,broadcast4_z_flag_rename_in,broadcast4_z_flag_valid_in,broadcast1_data_in,broadcast2_data_in,broadcast3_data_in,broadcast4_data_in,broadcast5_data_in )----------------------finding what to write in RS for instr1 includes carry and zero flag as well
 
    begin
 
@@ -1057,8 +1091,37 @@ process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code1_in,opr2_code1_in
         operand1_out_internal_instr1<=arf_reg_value(to_integer(unsigned(opr1_code1_in)));
         operand1_out_internal_data_valid_instr1<='1';
 
-      else
+      --the following case considee the source and broadcast request appear simultaneously  
 
+      elsif (broadcast1_orig_destn_in=opr1_code1_in and arf_reg_rename(to_integer(unsigned(opr1_code1_in)))=broadcast1_rename_in and broadcast1_valid_in='1') then
+       
+        operand1_out_internal_instr1<=broadcast1_data_in;
+        operand1_out_internal_data_valid_instr1<='1';
+
+      elsif (broadcast2_orig_destn_in=opr1_code1_in and arf_reg_rename(to_integer(unsigned(opr1_code1_in)))=broadcast2_rename_in and broadcast2_valid_in='1') then
+       
+        operand1_out_internal_instr1<=broadcast2_data_in;
+        operand1_out_internal_data_valid_instr1<='1'; 
+
+      elsif (broadcast3_orig_destn_in=opr1_code1_in and arf_reg_rename(to_integer(unsigned(opr1_code1_in)))=broadcast3_rename_in and broadcast3_valid_in='1') then
+       
+        operand1_out_internal_instr1<=broadcast3_data_in;
+        operand1_out_internal_data_valid_instr1<='1';
+
+      elsif (broadcast4_orig_destn_in=opr1_code1_in and arf_reg_rename(to_integer(unsigned(opr1_code1_in)))=broadcast4_rename_in and broadcast4_valid_in='1') then
+       
+        operand1_out_internal_instr1<=broadcast4_data_in;
+        operand1_out_internal_data_valid_instr1<='1';
+
+      elsif (broadcast5_orig_destn_in=opr1_code1_in and arf_reg_rename(to_integer(unsigned(opr1_code1_in)))=broadcast5_rename_in and broadcast5_valid_in='1') then
+       
+        operand1_out_internal_instr1<=broadcast5_data_in;
+        operand1_out_internal_data_valid_instr1<='1';       
+
+         
+      
+
+      else
          operand1_out_internal_instr1<= "0000000000" & arf_reg_rename(to_integer(unsigned(opr1_code1_in)));
          operand1_out_internal_data_valid_instr1<='0';  
         
@@ -1072,6 +1135,32 @@ process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code1_in,opr2_code1_in
 
         operand2_out_internal_instr1<=arf_reg_value(to_integer(unsigned(opr2_code1_in)));
         operand2_out_internal_data_valid_instr1<='1';
+      --the following case considee the source and broadcast request appear simultaneously 
+
+      elsif (broadcast1_orig_destn_in=opr2_code1_in and arf_reg_rename(to_integer(unsigned(opr2_code1_in)))=broadcast1_rename_in and broadcast1_valid_in='1') then
+       
+        operand2_out_internal_instr1<=broadcast1_data_in;
+        operand2_out_internal_data_valid_instr1<='1';
+
+      elsif (broadcast2_orig_destn_in=opr2_code1_in and arf_reg_rename(to_integer(unsigned(opr2_code1_in)))=broadcast2_rename_in and broadcast2_valid_in='1') then
+       
+        operand2_out_internal_instr1<=broadcast2_data_in;
+        operand2_out_internal_data_valid_instr1<='1'; 
+
+      elsif (broadcast3_orig_destn_in=opr2_code1_in and arf_reg_rename(to_integer(unsigned(opr2_code1_in)))=broadcast3_rename_in and broadcast3_valid_in='1') then
+       
+        operand2_out_internal_instr1<=broadcast3_data_in;
+        operand2_out_internal_data_valid_instr1<='1';
+
+      elsif (broadcast4_orig_destn_in=opr2_code1_in and arf_reg_rename(to_integer(unsigned(opr2_code1_in)))=broadcast4_rename_in and broadcast4_valid_in='1') then
+       
+        operand2_out_internal_instr1<=broadcast4_data_in;
+        operand2_out_internal_data_valid_instr1<='1';
+
+      elsif (broadcast5_orig_destn_in=opr2_code1_in and arf_reg_rename(to_integer(unsigned(opr2_code1_in)))=broadcast5_rename_in and broadcast5_valid_in='1') then
+       
+        operand2_out_internal_instr1<=broadcast5_data_in;
+        operand2_out_internal_data_valid_instr1<='1';   
 
       else
 
@@ -1088,6 +1177,32 @@ process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code1_in,opr2_code1_in
 
         operand3_out_internal_instr1<=arf_reg_value(to_integer(unsigned(opr3_code1_in)));
         operand3_out_internal_data_valid_instr1<='1';
+      --the following case considee the source and broadcast request appear simultaneously 
+
+       elsif (broadcast1_orig_destn_in=opr3_code1_in and arf_reg_rename(to_integer(unsigned(opr3_code1_in)))=broadcast1_rename_in and broadcast1_valid_in='1') then
+       
+        operand3_out_internal_instr1<=broadcast1_data_in;
+        operand3_out_internal_data_valid_instr1<='1';
+
+      elsif (broadcast2_orig_destn_in=opr3_code1_in and arf_reg_rename(to_integer(unsigned(opr3_code1_in)))=broadcast2_rename_in and broadcast2_valid_in='1') then
+       
+        operand3_out_internal_instr1<=broadcast2_data_in;
+        operand3_out_internal_data_valid_instr1<='1'; 
+
+      elsif (broadcast3_orig_destn_in=opr3_code1_in and arf_reg_rename(to_integer(unsigned(opr3_code1_in)))=broadcast3_rename_in and broadcast3_valid_in='1') then
+       
+        operand3_out_internal_instr1<=broadcast3_data_in;
+        operand3_out_internal_data_valid_instr1<='1';
+
+      elsif (broadcast4_orig_destn_in=opr3_code1_in and arf_reg_rename(to_integer(unsigned(opr3_code1_in)))=broadcast4_rename_in and broadcast4_valid_in='1') then
+       
+        operand3_out_internal_instr1<=broadcast4_data_in;
+        operand3_out_internal_data_valid_instr1<='1';
+
+      elsif (broadcast5_orig_destn_in=opr3_code1_in and arf_reg_rename(to_integer(unsigned(opr3_code1_in)))=broadcast5_rename_in and broadcast5_valid_in='1') then
+       
+        operand3_out_internal_instr1<=broadcast5_data_in;
+        operand3_out_internal_data_valid_instr1<='1';  
 
       else
 
@@ -1103,6 +1218,29 @@ process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code1_in,opr2_code1_in
         operand_carry_value_internal_instr1<=carry_value;
         operand_carry_rename_internal_instr1<=(others=>'0');
         operand_carry_bit_valid_instr1<='1';
+
+
+      elsif ( carry_rename_rf =broadcast1_c_flag_rename_in and broadcast1_c_flag_valid_in='1') then
+       
+        operand_carry_value_internal_instr1<=broadcast1_c_flag_in;
+        operand_carry_rename_internal_instr1<=(others=>'0');
+        operand_carry_bit_valid_instr1<='1';
+
+
+
+      elsif ( carry_rename_rf =broadcast2_c_flag_rename_in and broadcast2_c_flag_valid_in='1') then
+       
+        operand_carry_value_internal_instr1<=broadcast2_c_flag_in;
+        operand_carry_rename_internal_instr1<=(others=>'0');
+        operand_carry_bit_valid_instr1<='1';
+ 
+
+      elsif ( carry_rename_rf =broadcast4_c_flag_rename_in and broadcast4_c_flag_valid_in='1') then
+       
+        operand_carry_value_internal_instr1<=broadcast4_c_flag_in;
+        operand_carry_rename_internal_instr1<=(others=>'0');
+        operand_carry_bit_valid_instr1<='1';
+
 
       else
 
@@ -1120,6 +1258,29 @@ process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code1_in,opr2_code1_in
         operand_zero_value_internal_instr1<=zero_value;
         operand_zero_rename_internal_instr1<=(others=>'0');
         operand_zero_bit_valid_instr1<='1';
+
+      elsif ( zero_rename_rf =broadcast1_z_flag_rename_in and broadcast1_z_flag_valid_in='1') then
+       
+        operand_zero_value_internal_instr1<=broadcast1_z_flag_in;
+        operand_zero_rename_internal_instr1<=(others=>'0');
+        operand_zero_bit_valid_instr1<='1';
+
+
+
+      elsif ( zero_rename_rf =broadcast2_z_flag_rename_in and broadcast2_z_flag_valid_in='1') then
+       
+        operand_zero_value_internal_instr1<=broadcast2_z_flag_in;
+        operand_zero_rename_internal_instr1<=(others=>'0');
+        operand_zero_bit_valid_instr1<='1';
+ 
+
+      elsif ( zero_rename_rf =broadcast4_z_flag_rename_in and broadcast4_z_flag_valid_in='1') then
+       
+        operand_zero_value_internal_instr1<=broadcast4_z_flag_in;
+        operand_zero_rename_internal_instr1<=(others=>'0');
+        operand_zero_bit_valid_instr1<='1';
+
+
 
       else
 
@@ -1145,7 +1306,11 @@ end process;
 
 
 
-process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code2_in,opr2_code2_in,opr3_code2_in,carry_value_valid,carry_value,carry_rename_rf,zero_value_valid,zero_value,zero_rename_rf)----------------------checking what to write in RS for instr2
+process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code2_in,opr2_code2_in,opr3_code2_in,carry_value_valid,carry_value,carry_rename_rf,zero_value_valid,zero_value,zero_rename_rf,broadcast1_orig_destn_in,broadcast1_rename_in,broadcast1_valid_in , broadcast2_orig_destn_in,broadcast2_rename_in,broadcast2_valid_in ,broadcast3_orig_destn_in,broadcast3_rename_in,broadcast3_valid_in,
+        broadcast4_orig_destn_in,broadcast4_rename_in,broadcast4_valid_in,broadcast5_orig_destn_in,broadcast5_rename_in,broadcast5_valid_in ,broadcast1_c_flag_in,broadcast1_c_flag_rename_in
+        ,broadcast1_c_flag_valid_in,broadcast2_c_flag_in,broadcast2_c_flag_rename_in,broadcast2_c_flag_valid_in ,broadcast4_c_flag_in,broadcast4_c_flag_rename_in
+        ,broadcast4_c_flag_valid_in,broadcast1_z_flag_in,broadcast1_z_flag_rename_in,broadcast1_z_flag_valid_in,broadcast2_z_flag_in,broadcast2_z_flag_rename_in,broadcast2_z_flag_valid_in 
+        ,broadcast4_z_flag_in,broadcast4_z_flag_rename_in,broadcast4_z_flag_valid_in,broadcast1_data_in,broadcast2_data_in,broadcast3_data_in,broadcast4_data_in,broadcast5_data_in)----------------------checking what to write in RS for instr2
 
    begin
 
@@ -1154,6 +1319,34 @@ process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code2_in,opr2_code2_in
 
         operand1_out_internal_instr2<=arf_reg_value(to_integer(unsigned(opr1_code2_in)));
         operand1_out_internal_data_valid_instr2<='1';
+      
+      --the following case considee the source and broadcast request appear simultaneously 
+      elsif (broadcast1_orig_destn_in=opr1_code2_in and arf_reg_rename(to_integer(unsigned(opr1_code2_in)))=broadcast1_rename_in and broadcast1_valid_in='1') then
+       
+        operand1_out_internal_instr2<=broadcast1_data_in;
+        operand1_out_internal_data_valid_instr2<='1';
+
+      elsif (broadcast2_orig_destn_in=opr1_code2_in and arf_reg_rename(to_integer(unsigned(opr1_code2_in)))=broadcast2_rename_in and broadcast2_valid_in='1') then
+       
+        operand1_out_internal_instr2<=broadcast2_data_in;
+        operand1_out_internal_data_valid_instr2<='1'; 
+
+      elsif (broadcast3_orig_destn_in=opr1_code2_in and arf_reg_rename(to_integer(unsigned(opr1_code2_in)))=broadcast3_rename_in and broadcast3_valid_in='1') then
+       
+        operand1_out_internal_instr2<=broadcast3_data_in;
+        operand1_out_internal_data_valid_instr2<='1';
+
+      elsif (broadcast4_orig_destn_in=opr1_code2_in and arf_reg_rename(to_integer(unsigned(opr1_code2_in)))=broadcast4_rename_in and broadcast4_valid_in='1') then
+       
+        operand1_out_internal_instr2<=broadcast4_data_in;
+        operand1_out_internal_data_valid_instr2<='1';
+
+      elsif (broadcast5_orig_destn_in=opr1_code2_in and arf_reg_rename(to_integer(unsigned(opr1_code2_in)))=broadcast5_rename_in and broadcast5_valid_in='1') then
+       
+        operand1_out_internal_instr2<=broadcast1_data_in;
+        operand1_out_internal_data_valid_instr2<='1';  
+
+
 
       else
 
@@ -1170,6 +1363,32 @@ process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code2_in,opr2_code2_in
 
         operand2_out_internal_instr2<=arf_reg_value(to_integer(unsigned(opr2_code2_in)));
         operand2_out_internal_data_valid_instr2<='1';
+      --the following case considee the source and broadcast request appear simultaneously 
+      elsif (broadcast1_orig_destn_in=opr2_code2_in and arf_reg_rename(to_integer(unsigned(opr2_code2_in)))=broadcast1_rename_in and broadcast1_valid_in='1') then
+       
+        operand2_out_internal_instr2<=broadcast1_data_in;
+        operand2_out_internal_data_valid_instr2<='1';
+
+      elsif (broadcast2_orig_destn_in=opr2_code2_in and arf_reg_rename(to_integer(unsigned(opr2_code2_in)))=broadcast2_rename_in and broadcast2_valid_in='1') then
+       
+        operand2_out_internal_instr2<=broadcast2_data_in;
+        operand2_out_internal_data_valid_instr2<='1'; 
+
+      elsif (broadcast3_orig_destn_in=opr2_code2_in and arf_reg_rename(to_integer(unsigned(opr2_code2_in)))=broadcast3_rename_in and broadcast3_valid_in='1') then
+       
+        operand2_out_internal_instr2<=broadcast3_data_in;
+        operand2_out_internal_data_valid_instr2<='1';
+
+      elsif (broadcast4_orig_destn_in=opr2_code2_in and arf_reg_rename(to_integer(unsigned(opr2_code2_in)))=broadcast4_rename_in and broadcast4_valid_in='1') then
+       
+        operand2_out_internal_instr2<=broadcast4_data_in;
+        operand2_out_internal_data_valid_instr2<='1';
+
+      elsif (broadcast5_orig_destn_in=opr2_code2_in and arf_reg_rename(to_integer(unsigned(opr2_code2_in)))=broadcast5_rename_in and broadcast5_valid_in='1') then
+       
+        operand2_out_internal_instr2<=broadcast1_data_in;
+        operand2_out_internal_data_valid_instr2<='1';  
+
 
       else
 
@@ -1186,6 +1405,34 @@ process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code2_in,opr2_code2_in
 
         operand3_out_internal_instr2<=arf_reg_value(to_integer(unsigned(opr3_code2_in)));
         operand3_out_internal_data_valid_instr2<='1';
+      --the following case considee the source and broadcast request appear simultaneously  
+      elsif (broadcast1_orig_destn_in=opr3_code2_in and arf_reg_rename(to_integer(unsigned(opr3_code2_in)))=broadcast1_rename_in and broadcast1_valid_in='1') then
+       
+        operand3_out_internal_instr2<=broadcast1_data_in;
+        operand3_out_internal_data_valid_instr2<='1';
+
+      elsif (broadcast2_orig_destn_in=opr3_code2_in and arf_reg_rename(to_integer(unsigned(opr3_code2_in)))=broadcast2_rename_in and broadcast2_valid_in='1') then
+       
+        operand3_out_internal_instr2<=broadcast2_data_in;
+        operand3_out_internal_data_valid_instr2<='1'; 
+
+      elsif (broadcast3_orig_destn_in=opr3_code2_in and arf_reg_rename(to_integer(unsigned(opr3_code2_in)))=broadcast3_rename_in and broadcast3_valid_in='1') then
+       
+        operand3_out_internal_instr2<=broadcast3_data_in;
+        operand3_out_internal_data_valid_instr2<='1';
+
+      elsif (broadcast4_orig_destn_in=opr3_code2_in and arf_reg_rename(to_integer(unsigned(opr3_code2_in)))=broadcast4_rename_in and broadcast4_valid_in='1') then
+       
+        operand3_out_internal_instr2<=broadcast4_data_in;
+        operand3_out_internal_data_valid_instr2<='1';
+
+      elsif (broadcast5_orig_destn_in=opr3_code2_in and arf_reg_rename(to_integer(unsigned(opr3_code2_in)))=broadcast5_rename_in and broadcast5_valid_in='1') then
+       
+        operand3_out_internal_instr2<=broadcast1_data_in;
+        operand3_out_internal_data_valid_instr2<='1';  
+ 
+
+
 
 
       else
@@ -1205,6 +1452,29 @@ process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code2_in,opr2_code2_in
         operand_carry_rename_internal_instr2<=(others=>'0');
         operand_carry_bit_valid_instr2<='1';
 
+      elsif ( carry_rename_rf =broadcast1_c_flag_rename_in and broadcast1_c_flag_valid_in='1') then
+       
+        operand_carry_value_internal_instr2<=broadcast1_c_flag_in;
+        operand_carry_rename_internal_instr2<=(others=>'0');
+        operand_carry_bit_valid_instr2<='1';
+
+
+
+      elsif ( carry_rename_rf =broadcast2_c_flag_rename_in and broadcast2_c_flag_valid_in='1') then
+       
+        operand_carry_value_internal_instr2<=broadcast2_c_flag_in;
+        operand_carry_rename_internal_instr2<=(others=>'0');
+        operand_carry_bit_valid_instr2<='1';
+ 
+
+      elsif ( carry_rename_rf =broadcast4_c_flag_rename_in and broadcast4_c_flag_valid_in='1') then
+       
+        operand_carry_value_internal_instr2<=broadcast4_c_flag_in;
+        operand_carry_rename_internal_instr2<=(others=>'0');
+        operand_carry_bit_valid_instr2<='1';
+
+
+
       else
 
         operand_carry_value_internal_instr2<='0';
@@ -1221,6 +1491,30 @@ process(arf_value_valid,arf_reg_rename,arf_reg_value,opr1_code2_in,opr2_code2_in
         operand_zero_value_internal_instr2<=zero_value;
         operand_zero_rename_internal_instr2<=(others=>'0');
         operand_zero_bit_valid_instr2<='1';
+       
+       elsif ( zero_rename_rf =broadcast1_z_flag_rename_in and broadcast1_z_flag_valid_in='1') then
+       
+        operand_zero_value_internal_instr2<=broadcast1_z_flag_in;
+        operand_zero_rename_internal_instr2<=(others=>'0');
+        operand_zero_bit_valid_instr2<='1';
+
+
+
+      elsif ( zero_rename_rf =broadcast2_z_flag_rename_in and broadcast2_z_flag_valid_in='1') then
+       
+        operand_zero_value_internal_instr2<=broadcast2_c_flag_in;
+        operand_zero_rename_internal_instr2<=(others=>'0');
+        operand_zero_bit_valid_instr2<='1';
+ 
+
+      elsif ( carry_rename_rf =broadcast4_z_flag_rename_in and broadcast4_z_flag_valid_in='1') then
+       
+        operand_zero_value_internal_instr2<=broadcast4_z_flag_in;
+        operand_zero_rename_internal_instr2<=(others=>'0');
+        operand_zero_bit_valid_instr2<='1';
+
+
+
 
       else
 
@@ -1258,7 +1552,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
   
   begin 
 
-    i:=0;
+    --i:=0;
 
   for i in 0 to 7 loop
 
@@ -1284,16 +1578,51 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
        arf_reg_rename(i)<=br2_arf_reg_rename(i);
        arf_reg_value(i)<=br2_arf_reg_value(i);
-       arf_value_valid(i)<=br2_arf_value_valid(i); 
+       arf_value_valid(i)<=br2_arf_value_valid(i);
+
+      else 
+
+       if (broadcast1_valid_in='1' and arf_reg_rename(i)=broadcast1_rename_in and arf_value_valid(i)='0') then --checking broadcast signals to RRF 
+
+          arf_value_valid(i)<='1';
+          arf_reg_value(i)<=broadcast1_data_in;
+          --free_reg(to_integer(unsigned(broadcast1_rename_in)))<='1';
+
+
+       elsif (broadcast2_valid_in='1' and arf_reg_rename(i)=broadcast2_rename_in and arf_value_valid(i)='0') then
+
+          arf_value_valid(i)<='1';
+          arf_reg_value(i)<=broadcast2_data_in;
+          --free_reg(to_integer(unsigned(broadcast2_rename_in)))<='1';
+
+
+       elsif (broadcast3_valid_in='1' and arf_reg_rename(i)=broadcast3_rename_in and arf_value_valid(i)='0') then
+
+          arf_value_valid(i)<='1';
+          arf_reg_value(i)<=broadcast3_data_in;
+          --free_reg(to_integer(unsigned(broadcast3_rename_in)))<='1';
+
+
+       elsif (broadcast4_valid_in='1' and arf_reg_rename(i)=broadcast4_rename_in and arf_value_valid(i)='0') then
+
+          arf_value_valid(i)<='1';
+          arf_reg_value(i)<=broadcast4_data_in;
+          --free_reg(to_integer(unsigned(broadcast4_rename_in)))<='1';
+
+       elsif (broadcast5_valid_in='1' and arf_reg_rename(i)=broadcast5_rename_in and arf_value_valid(i)='0') then
+
+          arf_value_valid(i)<='1';
+          arf_reg_value(i)<=broadcast5_data_in;
+        end if;     
 
 
 
 
-      elsif ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0011" or op_code1_in="0100" or op_code1_in="1000" or op_code1_in="1001")
+      if ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0011" or op_code1_in="0100" or op_code1_in="1000" or op_code1_in="1001") and instr1_valid_in='1'
 
-           and (op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001") ) then
+           and (op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001") and instr2_valid_in='1') then
                                                                                                                                      --all instructions from both sets which modify registers
-
+                                                                                                                                    --instr added as validity to be checked before renaming register
             if (i=to_integer(unsigned(opr3_code1_in)))  then
                
                arf_reg_rename(i)<=first_free_rename(0);
@@ -1308,9 +1637,9 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
             end if;    
 
-       elsif ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0011" or op_code1_in="0100" or op_code1_in="1000" or op_code1_in="1001")
+       elsif ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0011" or op_code1_in="0100" or op_code1_in="1000" or op_code1_in="1001") and instr1_valid_in='1'
 
-           and (op_code2_in="0101" or op_code2_in="1100")) then --first set modifies destn --next set doesn't 
+           and (op_code2_in="0101" or op_code2_in="1100" or instr2_valid_in='0')) then --first set modifies destn --next set doesn't 
 
            if (i=to_integer(unsigned(opr3_code1_in)))  then
                
@@ -1321,47 +1650,23 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
             end if;
             
 
-       elsif ((op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001")
+       elsif ((op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001") and instr2_valid_in='1'
 
-           and (op_code1_in="0101" or op_code1_in="1100")) then --opposite of prev case
+           and (op_code1_in="0101" or op_code1_in="1100" or instr1_valid_in='0')) then --opposite of prev case
 
            if (i=to_integer(unsigned(opr3_code2_in)))  then
                
                arf_reg_rename(i)<=first_free_rename(1);
                arf_value_valid(i)<='0';
                --free_reg(to_integer(unsigned(first_free_rename(1))))<='0';
-           end if;
+            end if;
         
+        end if;
 
 
                     
-        elsif (broadcast1_valid_in='1' and arf_reg_rename(i)=broadcast1_rename_in and arf_value_valid(i)='0') then --checking broadcast signals to RRF 
-
-          arf_value_valid(i)<='1';
-          arf_reg_value(i)<=broadcast1_data_in;
-          --free_reg(to_integer(unsigned(broadcast1_rename_in)))<='1';
-
-
-         elsif (broadcast2_valid_in='1' and arf_reg_rename(i)=broadcast2_rename_in and arf_value_valid(i)='0') then
-
-          arf_value_valid(i)<='1';
-          arf_reg_value(i)<=broadcast2_data_in;
-          --free_reg(to_integer(unsigned(broadcast2_rename_in)))<='1';
-
-
-         elsif (broadcast3_valid_in='1' and arf_reg_rename(i)=broadcast3_rename_in and arf_value_valid(i)='0') then
-
-          arf_value_valid(i)<='1';
-          arf_reg_value(i)<=broadcast3_data_in;
-          --free_reg(to_integer(unsigned(broadcast3_rename_in)))<='1';
-
-
-         elsif (broadcast4_valid_in='1' and arf_reg_rename(i)=broadcast4_rename_in and arf_value_valid(i)='0') then
-
-          arf_value_valid(i)<='1';
-          arf_reg_value(i)<=broadcast4_data_in;
+        
           --free_reg(to_integer(unsigned(broadcast4_rename_in)))<='1';
-
 
                 
          end if;
@@ -1388,7 +1693,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
   
   begin 
 
-    i:=0;
+    --i:=0;
 
   for i in 0 to 7 loop
 
@@ -1440,6 +1745,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
           br1_arf_reg_value(i)<=broadcast4_data_in;
           --free_reg(to_integer(unsigned(broadcast4_rename_in)))<='1';
 
+         elsif (broadcast5_valid_in='1' and br1_arf_reg_rename(i)=broadcast5_rename_in and br1_arf_value_valid(i)='0' and broadcast5_btag_in="000") then
+
+          br1_arf_value_valid(i)<='1';
+          br1_arf_reg_value(i)<=broadcast5_data_in; 
+
 
                 
          end if;
@@ -1468,7 +1778,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
   
   begin 
 
-    i:=0;
+    --i:=0;
 
   for i in 0 to 7 loop
 
@@ -1518,6 +1828,10 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
           br2_arf_value_valid(i)<='1';
           br2_arf_reg_value(i)<=broadcast4_data_in;
           --free_reg(to_integer(unsigned(broadcast4_rename_in)))<='1';
+         elsif (broadcast5_valid_in='1' and br2_arf_reg_rename(i)=broadcast5_rename_in and br2_arf_value_valid(i)='0' and (broadcast5_btag_in="000" or broadcast5_btag_in="001")) then
+
+          br2_arf_value_valid(i)<='1';
+          br2_arf_reg_value(i)<=broadcast4_data_in; 
 
 
                 
@@ -1544,7 +1858,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
                                                                     	                                                 --only updates the free register table not anything else
 
-  variable i:integer range 0 to 7;
+  --variable i:integer range 0 to 7;
 
   --variable free_reg_var:
   
@@ -1569,14 +1883,59 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
       if (branch_mispredict_broadcast_in="01") then
        free_reg<=br1_free_reg;
       elsif (branch_mispredict_broadcast_in="10") then
-        free_Reg<=br2_free_reg; 
-       
-      elsif ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0011" or op_code1_in="0100" or op_code1_in="1000" or op_code1_in="1001")
+        free_Reg<=br2_free_reg;
 
-           and (op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001") ) then
+      else         --Changed on 6 early morning to make condition mutually exclusive --done on similar condition Also changed position of broadcast from bottom to top
+
+
+        if (broadcast1_valid_in='1' ) then --checking broadcast signals to RRF 
+
+          --arf_value_valid(i)<='1';
+          --arf_reg_value(i)<=broadcast1_data_in;
+          free_reg(to_integer(unsigned(broadcast1_rename_in)))<='1';
+        end if;  
+
+
+        if (broadcast2_valid_in='1') then  
+
+          --arf_value_valid(i)<='1';
+          --arf_reg_value(i)<=broadcast2_data_in;
+          free_reg(to_integer(unsigned(broadcast2_rename_in)))<='1';
+
+        end if;  
+
+
+        if (broadcast3_valid_in='1') then
+
+          --arf_value_valid(i)<='1';
+          --arf_reg_value(i)<=broadcast3_data_in;
+          free_reg(to_integer(unsigned(broadcast3_rename_in)))<='1';
+        
+        end if;
+
+        if (broadcast4_valid_in='1' ) then
+
+          --arf_value_valid(i)<='1';
+          --arf_reg_value(i)<=broadcast4_data_in;
+          free_reg(to_integer(unsigned(broadcast4_rename_in)))<='1';
+
+        end if;  
+
+        if (broadcast5_valid_in='1' ) then
+
+          --arf_value_valid(i)<='1';
+          --arf_reg_value(i)<=broadcast4_data_in;
+          free_reg(to_integer(unsigned(broadcast5_rename_in)))<='1'; 
+         
+        end if;
+
+       
+      if ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0011" or op_code1_in="0100" or op_code1_in="1000" or op_code1_in="1001") and instr1_valid_in='1'
+
+           and (op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001") and instr2_valid_in='1') then
                                                                                                                                      --all instructions from both sets which modify registers
 
-            --if (i=to_integer(unsigned(opr3_code1_in)))  then
+            --if (i=to_integer(unsigned(opr3_code1_in)))  then                                                                       --free register to be updated only if instr is valid
                
                --arf_reg_rename(i)<=first_free_rename(0);
                --arf_value_valid(i)<='0';
@@ -1590,9 +1949,9 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
             --end if;    
 
-       elsif ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0011" or op_code1_in="0100" or op_code1_in="1000" or op_code1_in="1001")
+       elsif ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0011" or op_code1_in="0100" or op_code1_in="1000" or op_code1_in="1001") and instr1_valid_in='1'
 
-           and (op_code2_in="0101" or op_code2_in="1100")) then --first set modifies destn --next set doesn't 
+           and (op_code2_in="0101" or op_code2_in="1100" or instr2_valid_in='0')) then --first set modifies destn --next set doesn't 
 
            --if (i=to_integer(unsigned(opr3_code1_in)))  then
                
@@ -1603,9 +1962,9 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
             --end if;
             
 
-       elsif ((op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001")
+       elsif ((op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001") and instr2_valid_in='1'
 
-           and (op_code1_in="0101" or op_code1_in="1100")) then --opposite of prev case
+           and (op_code1_in="0101" or op_code1_in="1100" or instr1_valid_in='0')) then --opposite of prev case
 
            --if (i=to_integer(unsigned(opr3_code2_in)))  then
                
@@ -1614,39 +1973,12 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
                free_reg(to_integer(unsigned(first_free_rename(1))))<='0';
            --end if;
         
+        end if;
 
 
-                    
-        elsif (broadcast1_valid_in='1' ) then --checking broadcast signals to RRF 
+       end if;     
 
-          --arf_value_valid(i)<='1';
-          --arf_reg_value(i)<=broadcast1_data_in;
-          free_reg(to_integer(unsigned(broadcast1_rename_in)))<='1';
-
-
-         elsif (broadcast2_valid_in='1') then
-
-          --arf_value_valid(i)<='1';
-          --arf_reg_value(i)<=broadcast2_data_in;
-          free_reg(to_integer(unsigned(broadcast2_rename_in)))<='1';
-
-
-         elsif (broadcast3_valid_in='1') then
-
-          --arf_value_valid(i)<='1';
-          --arf_reg_value(i)<=broadcast3_data_in;
-          free_reg(to_integer(unsigned(broadcast3_rename_in)))<='1';
-
-
-         elsif (broadcast4_valid_in='1' ) then
-
-          --arf_value_valid(i)<='1';
-          --arf_reg_value(i)<=broadcast4_data_in;
-          free_reg(to_integer(unsigned(broadcast4_rename_in)))<='1';
-
-
-                
-         end if;
+        
 
 
      end if;
@@ -1665,7 +1997,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
                                                                     	                                                 --only updates the free register table not anything else
 
-  variable i:integer range 0 to 7;
+  --variable i:integer range 0 to 7;
 
   --variable free_reg_var:
   
@@ -1695,31 +2027,38 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
           --arf_value_valid(i)<='1';
           --arf_reg_value(i)<=broadcast1_data_in;
           br1_free_reg(to_integer(unsigned(broadcast1_rename_in)))<='1';
+        end if;  
 
 
-         elsif (broadcast2_valid_in='1' and broadcast2_btag_in="000") then
+        if (broadcast2_valid_in='1' and broadcast2_btag_in="000") then
 
           --arf_value_valid(i)<='1';
           --arf_reg_value(i)<=broadcast2_data_in;
           br1_free_reg(to_integer(unsigned(broadcast2_rename_in)))<='1';
+        end if;  
 
 
-         elsif (broadcast3_valid_in='1' and broadcast3_btag_in="000") then
+        if (broadcast3_valid_in='1' and broadcast3_btag_in="000") then
 
           --arf_value_valid(i)<='1';
           --arf_reg_value(i)<=broadcast3_data_in;
           br1_free_reg(to_integer(unsigned(broadcast3_rename_in)))<='1';
+        end if;  
 
 
-         elsif (broadcast4_valid_in='1' and broadcast4_btag_in="000") then
+        if (broadcast4_valid_in='1' and broadcast4_btag_in="000") then
 
           --arf_value_valid(i)<='1';
           --arf_reg_value(i)<=broadcast4_data_in;
           br1_free_reg(to_integer(unsigned(broadcast4_rename_in)))<='1';
+        end if;  
 
+        if (broadcast5_valid_in='1' and broadcast5_btag_in="000") then
 
-                
-         end if;
+          --arf_value_valid(i)<='1';
+          --arf_reg_value(i)<=broadcast4_data_in;
+          br1_free_reg(to_integer(unsigned(broadcast5_rename_in)))<='1'; 
+        end if;
 
 
      end if;
@@ -1738,7 +2077,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
                                                                     	                                                 --only updates the free register table not anything else
 
-  variable i:integer range 0 to 7;
+  --variable i:integer range 0 to 7;
 
   --variable free_reg_var:
   
@@ -1770,31 +2109,42 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
           --arf_value_valid(i)<='1';
           --arf_reg_value(i)<=broadcast1_data_in;
           br2_free_reg(to_integer(unsigned(broadcast1_rename_in)))<='1';
+        end if;  
 
 
-         elsif (broadcast2_valid_in='1' and (broadcast2_btag_in="000" or broadcast2_btag_in="001")) then
+        if (broadcast2_valid_in='1' and (broadcast2_btag_in="000" or broadcast2_btag_in="001")) then
 
           --arf_value_valid(i)<='1';
           --arf_reg_value(i)<=broadcast2_data_in;
           br2_free_reg(to_integer(unsigned(broadcast2_rename_in)))<='1';
+        end if;  
 
 
-         elsif (broadcast3_valid_in='1' and (broadcast3_btag_in="000" or broadcast3_btag_in="001")) then
+        if (broadcast3_valid_in='1' and (broadcast3_btag_in="000" or broadcast3_btag_in="001")) then
 
           --arf_value_valid(i)<='1';
           --arf_reg_value(i)<=broadcast3_data_in;
           br2_free_reg(to_integer(unsigned(broadcast3_rename_in)))<='1';
+        end if;  
 
 
-         elsif (broadcast4_valid_in='1' and (broadcast4_btag_in="000" or broadcast4_btag_in="001")) then
+        if (broadcast4_valid_in='1' and (broadcast4_btag_in="000" or broadcast4_btag_in="001")) then
 
           --arf_value_valid(i)<='1';
           --arf_reg_value(i)<=broadcast4_data_in;
           br2_free_reg(to_integer(unsigned(broadcast4_rename_in)))<='1';
+        end if;  
+
+        if (broadcast5_valid_in='1' and (broadcast5_btag_in="000" or broadcast5_btag_in="001")) then
+
+          --arf_value_valid(i)<='1';
+          --arf_reg_value(i)<=broadcast4_data_in;
+          br2_free_reg(to_integer(unsigned(broadcast5_rename_in)))<='1';
+        end if;   
 
 
                 
-         end if;
+         
 
 
      end if;
@@ -1812,7 +2162,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
          broadcast2_c_flag_valid_in,broadcast2_c_flag_rename_in,broadcast2_c_flag_in,broadcast4_c_flag_in,broadcast4_c_flag_valid_in,broadcast4_c_flag_rename_in) ---only updates the carry flag table not anything else
 
-  variable i:integer range 0 to 7;
+  --variable i:integer range 0 to 7;
   
   begin 
 
@@ -1843,12 +2193,39 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
        free_rename_carry<=br2_free_rename_carry;
        carry_rename_rf<=br2_carry_rename_rf;
        carry_value<=br2_carry_value;
-       carry_value_valid<=br2_carry_value_valid;   
+       carry_value_valid<=br2_carry_value_valid;
+
+       -------------------------------------------------------------------------broadcast shifted from bottom to top
+      else
+       
+
+      if (broadcast1_c_flag_valid_in='1' and carry_rename_rf=broadcast1_c_flag_rename_in and carry_value_valid='0') then --checking broadcast signals to RRF 
+
+          carry_value_valid<='1';
+          carry_value<=broadcast1_c_flag_in;
+          free_rename_carry(to_integer(unsigned(broadcast1_c_flag_rename_in)))<='1';
 
 
-      elsif ((op_code1_in="0000" or op_code1_in="0001" )
+       elsif (broadcast2_c_flag_valid_in='1' and carry_rename_rf=broadcast2_c_flag_rename_in and carry_value_valid='0') then
 
-           and (op_code2_in="0000" or op_code2_in="0001")) then --or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001") ) then
+          carry_value_valid<='1';
+          carry_value<=broadcast2_c_flag_in;
+          free_rename_carry(to_integer(unsigned(broadcast2_c_flag_rename_in)))<='1';
+
+
+
+       elsif (broadcast4_c_flag_valid_in='1' and carry_rename_rf=broadcast4_c_flag_rename_in and carry_value_valid='0') then
+
+          carry_value_valid<='1';
+          carry_value<=broadcast4_c_flag_in;
+          free_rename_carry(to_integer(unsigned(broadcast4_c_flag_rename_in)))<='1';
+
+       end if;       
+
+
+      if ((op_code1_in="0000" or op_code1_in="0001" ) and instr1_valid_in='1'
+
+           and (op_code2_in="0000" or op_code2_in="0001") and instr2_valid_in='1') then --or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001") ) then
                                                                                                                                      --all instructions from both sets which modify carry flags
 
             --if (i=to_integer(unsigned(opr3_code1_in)))  then--never occur as we won't give 2 consecutive instr which modify carry flag
@@ -1865,8 +2242,8 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
             --end if;    
 
-       elsif ( (op_code1_in="0000" or op_code1_in="0001" )
-           and not (op_code2_in="0000" or op_code2_in="0001")) then --first set modifies destn --next set doesn't 
+       elsif ( (op_code1_in="0000" or op_code1_in="0001" ) and instr1_valid_in='1'
+           and not ((op_code2_in="0000" or op_code2_in="0001") and instr2_valid_in='1')) then --first set modifies destn --next set doesn't 
 
            --if (i=to_integer(unsigned(opr3_code1_in)))  then
                
@@ -1877,46 +2254,28 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
             --end if;
             
 
-       elsif (not (op_code1_in="0000" or op_code1_in="0001" )
-           and (op_code1_in="0000" or op_code1_in="0001" )) then --opposite of prev case
+       elsif (not ((op_code1_in="0000" or op_code1_in="0001" ) and instr1_valid_in='1')
+           and (op_code2_in="0000" or op_code2_in="0001" ) and instr2_valid_in='1') then --opposite of prev case
 
            --if (i=to_integer(unsigned(opr3_code2_in)))  then
                
                carry_rename_rf<=first_free_rename_carry(1);
                carry_value_valid<='0';
                free_rename_carry(to_integer(unsigned(first_free_rename_carry(1))))<='0';
+       end if;        
            -- end if;
         
 
 
                     
-        elsif (broadcast1_c_flag_valid_in='1' and carry_rename_rf=broadcast1_c_flag_rename_in and carry_value_valid='0') then --checking broadcast signals to RRF 
-
-          carry_value_valid<='1';
-          carry_value<=broadcast1_c_flag_in;
-          free_rename_carry(to_integer(unsigned(broadcast1_c_flag_rename_in)))<='1';
-
-
-         elsif (broadcast2_c_flag_valid_in='1' and carry_rename_rf=broadcast2_c_flag_rename_in and carry_value_valid='0') then
-
-          carry_value_valid<='1';
-          carry_value<=broadcast2_c_flag_in;
-          free_rename_carry(to_integer(unsigned(broadcast2_c_flag_rename_in)))<='1';
-
-
-
-         elsif (broadcast4_c_flag_valid_in='1' and carry_rename_rf=broadcast4_c_flag_rename_in and carry_value_valid='0') then
-
-          carry_value_valid<='1';
-          carry_value<=broadcast4_c_flag_in;
-          free_rename_carry(to_integer(unsigned(broadcast4_c_flag_rename_in)))<='1';
+        
 
 
 
 
          
                 
-         end if;
+       end if;
 
 
      end if;
@@ -1933,7 +2292,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
          broadcast2_c_flag_valid_in,broadcast2_c_flag_rename_in,broadcast2_c_flag_in,broadcast4_c_flag_in,broadcast4_c_flag_valid_in,broadcast4_c_flag_rename_in,branch1_done) ---only updates the carry flag table not anything else
 
-  variable i:integer range 0 to 7;
+  --variable i:integer range 0 to 7;
   
   begin 
 
@@ -2008,7 +2367,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
          broadcast2_c_flag_valid_in,broadcast2_c_flag_rename_in,broadcast2_c_flag_in,broadcast4_c_flag_in,broadcast4_c_flag_valid_in,broadcast4_c_flag_rename_in,branch2_done) ---only updates the carry flag table not anything else
 
-  variable i:integer range 0 to 7;
+  --variable i:integer range 0 to 7;
   
   begin 
 
@@ -2083,11 +2442,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
          broadcast2_z_flag_valid_in,broadcast2_z_flag_rename_in,broadcast2_z_flag_in,broadcast4_z_flag_valid_in,broadcast4_z_flag_rename_in,broadcast4_z_flag_in) ----------------------------------------------------------------------only updates the carry flag table not anything else
 ----------------------------------------------only updates the zero flag table not anything else
 
-  variable i:integer range 0 to 7;
+  --variable i:integer range 0 to 7;
   
   begin 
 
-    i:=0;
+   -- i:=0;
 
   --for i in 1 to 7 repetition : loop
 
@@ -2115,11 +2474,34 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
        zero_value<=br2_zero_value;
        zero_value_valid<=br2_zero_value_valid;
 
+       else 
+
+        if (broadcast1_z_flag_valid_in='1' and zero_rename_rf=broadcast1_z_flag_rename_in and zero_value_valid='0') then --checking broadcast signals to RRF 
+
+          zero_value_valid<='1';
+          zero_value<=broadcast1_z_flag_in;
+          free_rename_zero(to_integer(unsigned(broadcast1_z_flag_rename_in)))<='1';
+
+
+         elsif (broadcast2_z_flag_valid_in='1' and zero_rename_rf=broadcast2_z_flag_rename_in and zero_value_valid='0') then
+
+          zero_value_valid<='1';
+          zero_value<=broadcast2_z_flag_in;
+          free_rename_zero(to_integer(unsigned(broadcast2_z_flag_rename_in)))<='1';
+
+
+          elsif (broadcast4_z_flag_valid_in='1' and zero_rename_rf=broadcast4_z_flag_rename_in and zero_value_valid='0') then
+
+          zero_value_valid<='1';
+          zero_value<=broadcast4_z_flag_in;
+          free_rename_zero(to_integer(unsigned(broadcast4_z_flag_rename_in)))<='1';
+          end if; 
+
 
        
-      elsif ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0100")
+      if ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010") and instr1_valid_in='1'--LW removed from set as it won't modify zero flag
 
-           and (op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010" or op_code2_in="0100")) then --or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001") ) then
+           and (op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010") and instr2_valid_in='1') then --or op_code2_in="0010" or op_code2_in="0011" or op_code2_in="0100" or op_code2_in="1000" or op_code2_in="1001") ) then
                                                                                                                                      --all instructions from both sets which modify zero flags
 
             --if (i=to_integer(unsigned(opr3_code1_in)))  then -----------------This case won't occur as there won't be 2 consecutive instr modifying zero flag
@@ -2138,8 +2520,8 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
 
             --end if;    
 
-       elsif ( (op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0100")
-           and not (op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010" or op_code2_in="0100")) then --first set modifies destn --next set doesn't 
+       elsif ( (op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010") and instr1_valid_in='1'
+           and not ((op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010") and instr2_valid_in='1')) then --first set modifies destn --next set doesn't 
 
            --if (i=to_integer(unsigned(opr3_code1_in)))  then
                
@@ -2152,8 +2534,8 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
             --end if;
             
 
-       elsif (not (op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010" or op_code1_in="0100")
-           and (op_code1_in="0000" or op_code1_in="0001" or op_code2_in="0010" or op_code2_in="0100")) then --opposite of prev case
+       elsif (not ((op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010") and instr1_valid_in='1')
+           and (op_code2_in="0000" or op_code2_in="0001" or op_code2_in="0010") and instr2_valid_in='1') then --opposite of prev case
 
            --if (i=to_integer(unsigned(opr3_code2_in)))  then
                
@@ -2161,30 +2543,14 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
                zero_value_valid<='0';
                free_rename_zero(to_integer(unsigned(first_free_rename_zero(1))))<='0';
 
+        end if;       
+
             --end if;
         
 
 
                     
-        elsif (broadcast1_z_flag_valid_in='1' and zero_rename_rf=broadcast1_z_flag_rename_in and zero_value_valid='0') then --checking broadcast signals to RRF 
-
-          zero_value_valid<='1';
-          zero_value<=broadcast1_z_flag_in;
-          free_rename_zero(to_integer(unsigned(broadcast1_z_flag_rename_in)))<='1';
-
-
-        elsif (broadcast2_z_flag_valid_in='1' and zero_rename_rf=broadcast2_z_flag_rename_in and zero_value_valid='0') then
-
-          zero_value_valid<='1';
-          zero_value<=broadcast2_z_flag_in;
-          free_rename_zero(to_integer(unsigned(broadcast2_z_flag_rename_in)))<='1';
-
-
-        elsif (broadcast4_z_flag_valid_in='1' and zero_rename_rf=broadcast4_z_flag_rename_in and zero_value_valid='0') then
-
-          zero_value_valid<='1';
-          zero_value<=broadcast4_z_flag_in;
-          free_rename_zero(to_integer(unsigned(broadcast4_z_flag_rename_in)))<='1';
+        
 
 
 
@@ -2208,11 +2574,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
          broadcast2_z_flag_valid_in,broadcast2_z_flag_rename_in,broadcast2_z_flag_in,broadcast4_z_flag_valid_in,broadcast4_z_flag_rename_in,broadcast4_z_flag_in) ----------------------------------------------------------------------only updates the carry flag table not anything else
 ----------------------------------------------only updates the zero flag table not anything else
 
-  variable i:integer range 0 to 7;
+  --variable i:integer range 0 to 7;
   
   begin 
 
-    i:=0;
+    --i:=0;
 
   --for i in 1 to 7 repetition : loop
 
@@ -2272,11 +2638,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,op_cod
          broadcast2_z_flag_valid_in,broadcast2_z_flag_rename_in,broadcast2_z_flag_in,broadcast4_z_flag_valid_in,broadcast4_z_flag_rename_in,broadcast4_z_flag_in) ----------------------------------------------------------------------only updates the carry flag table not anything else
 ----------------------------------------------only updates the zero flag table not anything else
 
-  variable i:integer range 0 to 7;
+  --variable i:integer range 0 to 7;
   
   begin 
 
-    i:=0;
+    --i:=0;
 
   --for i in 1 to 7 repetition : loop
 
@@ -2471,6 +2837,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--upda
         alu_operand1_out_internal(i)<=broadcast4_data_in;
         alu_valid1_out_internal(i)<='1';
 
+    elsif(alu_operand1_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and alu_valid1_out_internal(i)='0') then --refers to case when operand 1 has no data
+        
+        alu_operand1_out_internal(i)<=broadcast5_data_in;
+        alu_valid1_out_internal(i)<='1';    
+
     end if;
 
     if (alu_operand2_out_internal(i)="0000000000" & broadcast1_rename_in and broadcast1_valid_in='1' and alu_valid2_out_internal(i)='0') then --refers to the case when operand 2 has no data
@@ -2492,6 +2863,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--upda
         
         alu_operand2_out_internal(i)<=broadcast4_data_in;
         alu_valid2_out_internal(i)<='1';
+    
+    elsif(alu_operand2_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and alu_valid2_out_internal(i)='0') then --refers to case when operand 2 has no data
+        
+        alu_operand2_out_internal(i)<=broadcast5_data_in;
+        alu_valid2_out_internal(i)<='1';        
     
 
     end if;
@@ -2517,6 +2893,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--upda
         
         alu_operand3_out_internal(i)<=broadcast4_data_in;
         alu_valid3_out_internal(i)<='1';
+
+    elsif(alu_operand3_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and alu_valid3_out_internal(i)='0') then --refers to case when operand 3 has no data
+        
+        alu_operand3_out_internal(i)<=broadcast5_data_in;
+        alu_valid3_out_internal(i)<='1';    
     
 
     end if;
@@ -2573,7 +2954,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--upda
      if (op_code1_in="0000" or op_code1_in="0001" or op_code1_in="0010")  then --instructions write on AL
 
        if (i=alu_vacant_entry(0)) then
-         alu_instr_valid_out_internal(i)<='1';
+         alu_instr_valid_out_internal(i)<=instr1_valid_in; --changed from 1 as instruction may not be valid
          alu_op_code_out_internal(i)<=op_code1_in;
          alu_op_code_cz_out_internal(i)<=op_cz1_in;
          alu_destn_rename_code_out_internal(i)<=first_free_rename(0);
@@ -2617,7 +2998,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--upda
 
         if (i=alu_vacant_entry(1)) then
           
-         alu_instr_valid_out_internal(i)<='1';
+         alu_instr_valid_out_internal(i)<=instr2_valid_in;--changed from 1 for same reason
          alu_op_code_out_internal(i)<=op_code2_in;
          alu_op_code_cz_out_internal(i)<=op_cz2_in;
          alu_destn_rename_code_out_internal(i)<=first_free_rename(1);
@@ -2775,6 +3156,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,branch
         br1_alu_operand1_out_internal(i)<=broadcast4_data_in;
         br1_alu_valid1_out_internal(i)<='1';
 
+    elsif(br1_alu_operand1_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br1_alu_valid1_out_internal(i)='0' and broadcast5_btag_in="000") then --refers to case when operand 1 has no data
+        
+        br1_alu_operand1_out_internal(i)<=broadcast5_data_in;
+        br1_alu_valid1_out_internal(i)<='1';    
+
     end if;
 
     if (br1_alu_operand2_out_internal(i)="0000000000" & broadcast1_rename_in and broadcast1_valid_in='1' and br1_alu_valid2_out_internal(i)='0' and  broadcast1_btag_in="000") then --refers to the case when operand 2 has no data
@@ -2792,10 +3178,15 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,branch
         br1_alu_operand2_out_internal(i)<=broadcast3_data_in;
         br1_alu_valid2_out_internal(i)<='1';
 
-    elsif(br1_alu_operand2_out_internal(i)="0000000000" & broadcast4_rename_in and broadcast4_valid_in='1' and br1_alu_valid2_out_internal(i)='0' and broadcast3_btag_in="000") then --refers to case when operand 2 has no data
+    elsif(br1_alu_operand2_out_internal(i)="0000000000" & broadcast4_rename_in and broadcast4_valid_in='1' and br1_alu_valid2_out_internal(i)='0' and broadcast4_btag_in="000") then --refers to case when operand 2 has no data
         
         br1_alu_operand2_out_internal(i)<=broadcast4_data_in;
         br1_alu_valid2_out_internal(i)<='1';
+
+    elsif(br1_alu_operand2_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br1_alu_valid1_out_internal(i)='0' and broadcast5_btag_in="000") then --refers to case when operand 1 has no data
+        
+        br1_alu_operand1_out_internal(i)<=broadcast5_data_in;
+        br1_alu_valid1_out_internal(i)<='1';    
     
 
     end if;
@@ -2821,6 +3212,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,branch
         
         br1_alu_operand3_out_internal(i)<=broadcast4_data_in;
         br1_alu_valid3_out_internal(i)<='1';
+
+    elsif(br1_alu_operand3_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br1_alu_valid3_out_internal(i)='0' and  broadcast5_btag_in="000") then --refers to case when operand 3 has no data
+        
+        br1_alu_operand3_out_internal(i)<=broadcast5_data_in;
+        br1_alu_valid3_out_internal(i)<='1';    
     
 
     end if;
@@ -2986,6 +3382,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,branch
         br2_alu_operand1_out_internal(i)<=broadcast4_data_in;
         br2_alu_valid1_out_internal(i)<='1';
 
+    elsif(br2_alu_operand1_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast4_valid_in='1' and br2_alu_valid1_out_internal(i)='0' and (broadcast5_btag_in="000" or broadcast5_btag_in="001")) then --refers to case when operand 1 has no data
+        
+        br2_alu_operand1_out_internal(i)<=broadcast5_data_in;
+        br2_alu_valid1_out_internal(i)<='1';    
+
     end if;
 
     if (br2_alu_operand2_out_internal(i)="0000000000" & broadcast1_rename_in and broadcast1_valid_in='1' and br2_alu_valid2_out_internal(i)='0' and  (broadcast1_btag_in="000" or broadcast1_btag_in="001")) then --refers to the case when operand 2 has no data
@@ -3007,6 +3408,13 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,branch
         
         br2_alu_operand2_out_internal(i)<=broadcast4_data_in;
         br2_alu_valid2_out_internal(i)<='1';
+    
+    elsif(br1_alu_operand2_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br2_alu_valid2_out_internal(i)='0' and (broadcast5_btag_in="000" or broadcast5_btag_in="001")) then --refers to case when operand 2 has no data
+        
+        br2_alu_operand2_out_internal(i)<=broadcast5_data_in;
+        br2_alu_valid2_out_internal(i)<='1';
+
+
     
 
     end if;
@@ -3032,6 +3440,12 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal,branch
         
         br2_alu_operand3_out_internal(i)<=broadcast4_data_in;
         br2_alu_valid3_out_internal(i)<='1';
+
+    elsif(br2_alu_operand3_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br2_alu_valid3_out_internal(i)='0' and  (broadcast5_btag_in="000" or broadcast5_btag_in="001")) then --refers to case when operand 3 has no data
+        
+        br2_alu_operand3_out_internal(i)<=broadcast5_data_in;
+        br2_alu_valid3_out_internal(i)<='1';
+        
     
 
     end if;
@@ -3221,6 +3635,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--ls p
         ls_operand1_out_internal(i)<=broadcast4_data_in;
         ls_valid1_out_internal(i)<='1';
 
+    elsif(alu_operand1_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and ls_valid1_out_internal(i)='0') then --refers to case when operand 1 has no data
+        
+        ls_operand1_out_internal(i)<=broadcast5_data_in;
+        ls_valid1_out_internal(i)<='1';    
+
     end if;
 
     if (ls_operand3_out_internal(i)="0000000000" & broadcast1_rename_in and broadcast1_valid_in='1' and ls_valid3_out_internal(i)='0') then --refers to the case when operand 3 has no data
@@ -3243,6 +3662,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--ls p
         ls_operand3_out_internal(i)<=broadcast4_data_in;
         ls_valid3_out_internal(i)<='1';
     
+    elsif(ls_operand3_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and ls_valid3_out_internal(i)='0') then --refers to case when operand 3 has no data
+        
+        ls_operand3_out_internal(i)<=broadcast5_data_in;
+        ls_valid3_out_internal(i)<='1';
+    
 
     end if;
     
@@ -3255,7 +3679,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--ls p
      if (op_code1_in="0100" or op_code1_in="0011" or op_code1_in="0101")  then --instructions related to load/store
 
        if (i=ls_vacant_entry(0)) then
-         ls_instr_valid_out_internal(i)<='1';
+         ls_instr_valid_out_internal(i)<=instr1_valid_in;
          ls_op_code_out_internal(i)<=op_code1_in;
          --ls_op_code_cz_out_internal(i)<=op_cz1_in;
          ls_destn_rename_code_out_internal(i)<=first_free_rename(0);
@@ -3286,7 +3710,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--ls p
 
         if (i=ls_vacant_entry(1)) then
           
-         ls_instr_valid_out_internal(i)<='1';
+         ls_instr_valid_out_internal(i)<=instr2_valid_in;
          ls_op_code_out_internal(i)<=op_code2_in;
          --ls_op_code_cz_out_internal(i)<=op_cz1_in;
          ls_destn_rename_code_out_internal(i)<=first_free_rename(1);
@@ -3420,6 +3844,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--ls p
         br1_ls_operand1_out_internal(i)<=broadcast4_data_in;
         br1_ls_valid1_out_internal(i)<='1';
 
+    elsif(br1_alu_operand1_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br1_ls_valid1_out_internal(i)='0' and broadcast5_btag_in="000" ) then --refers to case when operand 1 has no data
+        
+        br1_ls_operand1_out_internal(i)<=broadcast5_data_in;
+        br1_ls_valid1_out_internal(i)<='1';    
+
     end if;
 
     if (br1_ls_operand3_out_internal(i)="0000000000" & broadcast1_rename_in and broadcast1_valid_in='1' and br1_ls_valid3_out_internal(i)='0' and broadcast1_btag_in="000") then --refers to the case when operand 3 has no data
@@ -3441,6 +3870,12 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--ls p
         
         br1_ls_operand3_out_internal(i)<=broadcast4_data_in;
         br1_ls_valid3_out_internal(i)<='1';
+
+    elsif(br1_ls_operand3_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br1_ls_valid3_out_internal(i)='0' and broadcast5_btag_in="000") then --refers to case when operand 3 has no data
+        
+        br1_ls_operand3_out_internal(i)<=broadcast5_data_in;
+        br1_ls_valid3_out_internal(i)<='1';
+        
     
 
     end if;
@@ -3553,6 +3988,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--ls p
         br2_ls_operand1_out_internal(i)<=broadcast4_data_in;
         br2_ls_valid1_out_internal(i)<='1';
 
+    elsif(br2_alu_operand1_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br2_ls_valid1_out_internal(i)='0' and (broadcast5_btag_in="000" or broadcast5_btag_in="001")) then --refers to case when operand 1 has no data
+        
+        br2_ls_operand1_out_internal(i)<=broadcast5_data_in;
+        br2_ls_valid1_out_internal(i)<='1';    
+
     end if;
 
     if (br2_ls_operand3_out_internal(i)="0000000000" & broadcast1_rename_in and broadcast1_valid_in='1' and br2_ls_valid3_out_internal(i)='0' and (broadcast1_btag_in="000" or broadcast1_btag_in="001")) then --refers to the case when operand 3 has no data
@@ -3574,6 +4014,13 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--ls p
         
         br2_ls_operand3_out_internal(i)<=broadcast4_data_in;
         br2_ls_valid3_out_internal(i)<='1';
+
+    elsif(br2_ls_operand3_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br2_ls_valid3_out_internal(i)='0' and (broadcast5_btag_in="000" or broadcast5_btag_in="001")) then --refers to case when operand 3 has no data
+        
+        br2_ls_operand3_out_internal(i)<=broadcast5_data_in;
+        br2_ls_valid3_out_internal(i)<='1';    
+
+        
     
 
     end if;
@@ -3731,6 +4178,12 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal )  ---
         jmp_operand1_out_internal(i)<=broadcast4_data_in;
         jmp_valid1_out_internal(i)<='1';
 
+    elsif(jmp_operand1_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and jmp_valid1_out_internal(i)='0') then --refers to case when operand 1 has no data
+        
+        jmp_operand1_out_internal(i)<=broadcast5_data_in;
+        jmp_valid1_out_internal(i)<='1';
+    
+
     end if;
 
 
@@ -3738,23 +4191,29 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal )  ---
 
     if (jmp_operand2_out_internal(i)="0000000000" & broadcast1_rename_in and broadcast1_valid_in='1' and jmp_valid2_out_internal(i)='0') then --refers to the case when operand 3 has no data
 
-        jmp_operand3_out_internal(i)<=broadcast1_data_in;
-        jmp_valid3_out_internal(i)<='1';
+        jmp_operand2_out_internal(i)<=broadcast1_data_in;
+        jmp_valid2_out_internal(i)<='1';
 
     elsif(jmp_operand2_out_internal(i)="0000000000" & broadcast2_rename_in and broadcast2_valid_in='1' and jmp_valid2_out_internal(i)='0') then --refers to case when operand 3 has no data
         
-        jmp_operand3_out_internal(i)<=broadcast2_data_in;
-        jmp_valid3_out_internal(i)<='1';
+        jmp_operand2_out_internal(i)<=broadcast2_data_in;
+        jmp_valid2_out_internal(i)<='1';
     
     elsif(jmp_operand2_out_internal(i)="0000000000" & broadcast3_rename_in and broadcast3_valid_in='1' and jmp_valid2_out_internal(i)='0') then --refers to case when operand 3 has no data
         
-        jmp_operand3_out_internal(i)<=broadcast3_data_in;
-        jmp_valid3_out_internal(i)<='1';
+        jmp_operand2_out_internal(i)<=broadcast3_data_in;
+        jmp_valid2_out_internal(i)<='1';
 
     elsif(jmp_operand2_out_internal(i)="0000000000" & broadcast4_rename_in and broadcast4_valid_in='1' and jmp_valid2_out_internal(i)='0') then --refers to case when operand 3 has no data
         
-        jmp_operand3_out_internal(i)<=broadcast4_data_in;
-        jmp_valid3_out_internal(i)<='1';
+        jmp_operand2_out_internal(i)<=broadcast4_data_in;
+        jmp_valid2_out_internal(i)<='1';
+
+    elsif(jmp_operand2_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and jmp_valid2_out_internal(i)='0') then --refers to case when operand 1 has no data
+        
+        jmp_operand2_out_internal(i)<=broadcast5_data_in;
+        jmp_valid2_out_internal(i)<='1';
+    
     
 
     end if;
@@ -3768,7 +4227,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal )  ---
      if (op_code1_in="1100" or op_code1_in="1000" or op_code1_in="1001")  then --instructions related to BEQ/JAL/JLR
 
        if (i=jmp_vacant_entry(0)) then
-         jmp_instr_valid_out_internal(i)<='1';
+         jmp_instr_valid_out_internal(i)<=instr1_valid_in;
          jmp_op_code_out_internal(i)<=op_code1_in;
          --ls_op_code_cz_out_internal(i)<=op_cz1_in;
          jmp_destn_rename_code_out_internal(i)<=first_free_rename(0);
@@ -3817,7 +4276,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal )  ---
 
         if (i=jmp_vacant_entry(1)) then
           
-         jmp_instr_valid_out_internal(i)<='1';
+         jmp_instr_valid_out_internal(i)<=instr2_valid_in;
          jmp_op_code_out_internal(i)<=op_code2_in;
          --ls_op_code_cz_out_internal(i)<=op_cz1_in;
          jmp_destn_rename_code_out_internal(i)<=first_free_rename(1);
@@ -3981,6 +4440,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal )  ---
         br1_jmp_operand1_out_internal(i)<=broadcast4_data_in;
         br1_jmp_valid1_out_internal(i)<='1';
 
+    elsif(br1_jmp_operand1_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br1_jmp_valid1_out_internal(i)='0' and broadcast5_btag_in="000") then --refers to case when operand 1 has no data
+        
+        br1_jmp_operand1_out_internal(i)<=broadcast5_data_in;
+        br1_jmp_valid1_out_internal(i)<='1';    
+
     end if;
 
 
@@ -3988,23 +4452,28 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal )  ---
 
     if (br1_jmp_operand2_out_internal(i)="0000000000" & broadcast1_rename_in and broadcast1_valid_in='1' and br1_jmp_valid2_out_internal(i)='0' and broadcast1_btag_in="000") then --refers to the case when operand 3 has no data
 
-        br1_jmp_operand3_out_internal(i)<=broadcast1_data_in;
-        br1_jmp_valid3_out_internal(i)<='1';
+        br1_jmp_operand2_out_internal(i)<=broadcast1_data_in;
+        br1_jmp_valid2_out_internal(i)<='1';
 
     elsif(br1_jmp_operand2_out_internal(i)="0000000000" & broadcast2_rename_in and broadcast2_valid_in='1' and br1_jmp_valid2_out_internal(i)='0' and broadcast2_btag_in="000") then --refers to case when operand 3 has no data
         
-        br1_jmp_operand3_out_internal(i)<=broadcast2_data_in;
-        br1_jmp_valid3_out_internal(i)<='1';
+        br1_jmp_operand2_out_internal(i)<=broadcast2_data_in;
+        br1_jmp_valid2_out_internal(i)<='1';
     
     elsif(br1_jmp_operand2_out_internal(i)="0000000000" & broadcast3_rename_in and broadcast3_valid_in='1' and br1_jmp_valid2_out_internal(i)='0' and broadcast3_btag_in="000") then --refers to case when operand 3 has no data
         
-        br1_jmp_operand3_out_internal(i)<=broadcast3_data_in;
-        br1_jmp_valid3_out_internal(i)<='1';
+        br1_jmp_operand2_out_internal(i)<=broadcast3_data_in;
+        br1_jmp_valid2_out_internal(i)<='1';
 
     elsif(br1_jmp_operand2_out_internal(i)="0000000000" & broadcast4_rename_in and broadcast4_valid_in='1' and br1_jmp_valid2_out_internal(i)='0' and broadcast4_btag_in="000") then --refers to case when operand 3 has no data
         
-        br1_jmp_operand3_out_internal(i)<=broadcast4_data_in;
-        br1_jmp_valid3_out_internal(i)<='1';
+        br1_jmp_operand2_out_internal(i)<=broadcast4_data_in;
+        br1_jmp_valid2_out_internal(i)<='1';
+
+    elsif(br1_jmp_operand2_out_internal(i)="0000000000" & broadcast4_rename_in and broadcast5_valid_in='1' and br1_jmp_valid2_out_internal(i)='0' and broadcast5_btag_in="000") then --refers to case when operand 3 has no data
+        
+        br1_jmp_operand2_out_internal(i)<=broadcast4_data_in;
+        br1_jmp_valid2_out_internal(i)<='1';    
     
 
     end if;
@@ -4122,6 +4591,11 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal )  ---
         br2_jmp_operand1_out_internal(i)<=broadcast4_data_in;
         br2_jmp_valid1_out_internal(i)<='1';
 
+    elsif(br2_jmp_operand1_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br2_jmp_valid1_out_internal(i)='0' and (broadcast5_btag_in="000" or broadcast5_btag_in="001")) then --refers to case when operand 1 has no data
+        
+        br2_jmp_operand1_out_internal(i)<=broadcast5_data_in;
+        br2_jmp_valid1_out_internal(i)<='1';    
+
     end if;
 
 
@@ -4129,23 +4603,28 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal )  ---
 
     if (br2_jmp_operand2_out_internal(i)="0000000000" & broadcast1_rename_in and broadcast1_valid_in='1' and br2_jmp_valid2_out_internal(i)='0' and (broadcast1_btag_in="000" or broadcast1_btag_in="001")) then --refers to the case when operand 3 has no data
 
-        br2_jmp_operand3_out_internal(i)<=broadcast1_data_in;
-        br2_jmp_valid3_out_internal(i)<='1';
+        br2_jmp_operand2_out_internal(i)<=broadcast1_data_in;
+        br2_jmp_valid2_out_internal(i)<='1';
 
     elsif(br2_jmp_operand2_out_internal(i)="0000000000" & broadcast2_rename_in and broadcast2_valid_in='1' and br2_jmp_valid2_out_internal(i)='0' and (broadcast2_btag_in="000" or broadcast2_btag_in="001")) then --refers to case when operand 3 has no data
         
-        br2_jmp_operand3_out_internal(i)<=broadcast2_data_in;
-        br2_jmp_valid3_out_internal(i)<='1';
+        br2_jmp_operand2_out_internal(i)<=broadcast2_data_in;
+        br2_jmp_valid2_out_internal(i)<='1';
     
     elsif(br2_jmp_operand2_out_internal(i)="0000000000" & broadcast3_rename_in and broadcast3_valid_in='1' and br2_jmp_valid2_out_internal(i)='0' and (broadcast3_btag_in="000" or broadcast3_btag_in="001")) then --refers to case when operand 3 has no data
         
-        br2_jmp_operand3_out_internal(i)<=broadcast3_data_in;
-        br2_jmp_valid3_out_internal(i)<='1';
+        br2_jmp_operand2_out_internal(i)<=broadcast3_data_in;
+        br2_jmp_valid2_out_internal(i)<='1';
 
     elsif(br2_jmp_operand2_out_internal(i)="0000000000" & broadcast4_rename_in and broadcast4_valid_in='1' and br2_jmp_valid2_out_internal(i)='0' and (broadcast4_btag_in="000" or broadcast4_btag_in="001")) then --refers to case when operand 3 has no data
         
-        br2_jmp_operand3_out_internal(i)<=broadcast4_data_in;
-        br2_jmp_valid3_out_internal(i)<='1';
+        br2_jmp_operand2_out_internal(i)<=broadcast4_data_in;
+        br2_jmp_valid2_out_internal(i)<='1';
+
+    elsif(br2_jmp_operand2_out_internal(i)="0000000000" & broadcast5_rename_in and broadcast5_valid_in='1' and br2_jmp_valid2_out_internal(i)='0' and (broadcast5_btag_in="000" or broadcast5_btag_in="001")) then --refers to case when operand 3 has no data
+        
+        br2_jmp_operand2_out_internal(i)<=broadcast4_data_in;
+        br2_jmp_valid2_out_internal(i)<='1';    
     
 
     end if;
@@ -4340,7 +4819,7 @@ process (reset_system,clk_input,stall_reservation_update,halt_out_internal,self2
 
    branch1_done<='0';
    branch2_done<='0';
-   branch3_done<='0';
+   --branch3_done<='0';
 
   elsif (clk_input'event and clk_input='1' and stall_reservation_update='0' and halt_out_internal='0') then
   
@@ -4349,26 +4828,26 @@ process (reset_system,clk_input,stall_reservation_update,halt_out_internal,self2
     if (self2_tag_in="001") then
      branch1_done<='1';
      branch2_done<='0';
-     branch3_done<='0';
+     --branch3_done<='0';
     elsif (self2_tag_in="010") then
      branch1_done<='0';
      branch2_done<='1';
-     branch3_done<='0';
+     --branch3_done<='0';
     elsif (self2_tag_in="100") then
      branch1_done<='0';
      branch2_done<='0';
-     branch3_done<='1'; 
+     --branch3_done<='1'; 
 
     else
      branch1_done<='0';
      branch2_done<='0';
-     branch3_done<='0';
+     --branch3_done<='0';
     end if;
     
    else
     branch1_done<='0';
     branch2_done<='0';
-    branch3_done<='0';
+    --branch3_done<='0';
    end if;
   end if;     
 
@@ -4449,6 +4928,19 @@ end process;
 
 
 
+curr_pc1_rob_out<=curr_pc1_in;
+destn_code1_rob_out<=opr3_code1_in;
+op_code1_rob_out<=op_code1_in;
+destn_rename1_rob_out<=first_free_rename(0);
+destn_rename_c1_rob_out<=first_free_rename_carry(0);
+destn_rename_z1_rob_out<=first_free_rename_zero(0);
+
+curr_pc2_rob_out<=curr_pc2_in;
+destn_code2_rob_out<=opr3_code2_in;
+op_code2_rob_out<=op_code2_in;
+destn_rename2_rob_out<=first_free_rename(1);
+destn_rename_c2_rob_out<=first_free_rename_carry(1);
+destn_rename_z2_rob_out<=first_free_rename_zero(1);
 
 
  
