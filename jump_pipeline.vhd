@@ -33,7 +33,16 @@ entity jump_pipeline is
       self_branch_tag_out:out std_logic_vector(2 downto 0);
       branch_addr:out std_logic_vector(15 downto 0);
       reg_write:out std_logic;
-      correct: out std_logic);
+      correct: out std_logic;
+
+      jump_brdcst_rename_out:out std_logic_vector(5 downto 0);
+      jump_brdcst_orig_destn_out:out std_logic_vector(2 downto 0);
+      jump_brdcst_data_out:out std_logic_vector(15 downto 0); 
+      jump_brdcst_valid_out:out std_logic;
+       
+      jump_brdcst_btag_out:out std_logic_vector(2 downto 0));
+      
+     
 end entity;
 
 
@@ -97,10 +106,33 @@ architecture struct of jump_pipeline is
 
   end process;
 
-  branch_addr<=std_logic_vector(branch);
-  data_out<=std_logic_vector(result);
 
-  pipeline_valid_out<=pipeline_valid_in;
+
+  process(op_code_in,pipeline_valid_in) 
+
+   begin
+
+    if (op_code_in="1100") then--BEQ instruction
+      jump_brdcst_valid_out <= '0'; 
+    
+    else 
+      jump_brdcst_valid_out <= pipeline_valid_in;
+    end if;
+
+  end process;
+
+
+    jump_brdcst_rename_out <= destn_rename_code_in;
+    jump_brdcst_orig_destn_out <= orig_destn_in;
+    jump_brdcst_data_out <= std_logic_vector(result);
+           
+    jump_brdcst_btag_out <= b_tag_in;
+
+
+    branch_addr<=std_logic_vector(branch);
+    data_out<=std_logic_vector(result);
+
+    pipeline_valid_out<=pipeline_valid_in;
     op_code_out<=op_code_in;
     destn_rename_code_out<=destn_rename_code_in;
     --c_rename_out<=c_rename_in;
