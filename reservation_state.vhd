@@ -3,19 +3,19 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 
-package pkg is
-  type slv8_array_t is array (natural range <>) of std_logic_vector(7 downto 0);
-  type slv4_array_t is array (natural range <>) of std_logic_vector(3 downto 0);
-  type slv6_array_t is array (natural range <>) of std_logic_vector(5 downto 0);
-  type slv16_array_t is array (natural range <>) of std_logic_vector(15 downto 0);
-  type slv_array_t is array (natural range <>) of std_logic;
-  type slv3_array_t is array (natural range <>) of std_logic_vector(2 downto 0);
-  type slv2_array_t is array (natural range <>) of std_logic_vector(1 downto 0);
-  type slv6_int_array_t is array (natural range <>) of integer range 0 to 9;
-end package;
+--package pkg is
+--  type slv8_array_t is array (natural range <>) of std_logic_vector(7 downto 0);
+--  type slv4_array_t is array (natural range <>) of std_logic_vector(3 downto 0);
+--  type slv6_array_t is array (natural range <>) of std_logic_vector(5 downto 0);
+--  type slv16_array_t is array (natural range <>) of std_logic_vector(15 downto 0);
+--  type slv_array_t is array (natural range <>) of std_logic;
+--  type slv3_array_t is array (natural range <>) of std_logic_vector(2 downto 0);
+--  type slv2_array_t is array (natural range <>) of std_logic_vector(1 downto 0);
+--  type slv6_int_array_t is array (natural range <>) of integer range 0 to 9;
+--end package;
 
-package body pkg is
-end package body;
+--package body pkg is
+--end package body;
 
 
 library ieee;

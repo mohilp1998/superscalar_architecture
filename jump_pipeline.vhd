@@ -40,7 +40,11 @@ entity jump_pipeline is
       jump_brdcst_data_out:out std_logic_vector(15 downto 0); 
       jump_brdcst_valid_out:out std_logic;
        
-      jump_brdcst_btag_out:out std_logic_vector(2 downto 0));
+      jump_brdcst_btag_out:out std_logic_vector(2 downto 0);
+
+      jump_branch_mispredictor:out std_logic_vector(1 downto 0) --to be sent to RS for branch misprediction
+
+      );
       
      
 end entity;
@@ -120,6 +124,32 @@ architecture struct of jump_pipeline is
     end if;
 
   end process;
+
+  
+  process (self_branch_tag_in,pipeline_valid_in,branch,next_pc_in) --aded on 7 to adrress the instr sending to RS on branch misprediction
+
+   begin
+
+    if(pipeline_valid_in='1' and self_branch_tag_in="001" and not(branch=unsigned(next_pc_in)) then
+
+     jump_branch_mispredictor<="01";
+
+    elsif (pipeline_valid_in='1' and self_branch_tag_in="010" and not(branch=unsigned(next_pc_in)) then
+
+     jump_branch_mispredictor<="10";
+
+
+    else
+     jump_branch_mispredictor<="00";
+
+    end if;  
+
+
+
+
+  end process; 
+
+
 
 
     jump_brdcst_rename_out <= destn_rename_code_in;

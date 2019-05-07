@@ -16,7 +16,7 @@ entity fetch is
 	Instr1: out std_logic_vector(15 downto 0);
 	Instr2: out std_logic_vector(15 downto 0);
 	PC: out std_logic_vector(15 downto 0)
-  ) ;
+  );
 end entity ; -- fetch
 
 architecture arch of fetch is
@@ -33,7 +33,7 @@ if (clk'event and clk = '1') then
 	
 	if (stall_in = '1') then
 		
-		if (instr_invalidate_in = '1') then
+		if (instr_invalidate_in = '1') then 
 			inst_1_valid <= '0';
 			inst_2_valid <= '0';
 		else
@@ -43,7 +43,11 @@ if (clk'event and clk = '1') then
 		
 		if (instr_invalidate_in = '1') then
 			inst_1_valid <= '0';
-			inst_2_valid <= '0';
+			inst_2_valid <= '0';   --changed tonight by Sahasrajit
+			PC <= PC_in;
+			inst_1_valid <= constant_1;
+			inst_2_valid <= constant_1;
+
 		else
 			Instr1 <= Mem_in(31 downto 16);
 			Instr2 <= Mem_in(15 downto 0);
