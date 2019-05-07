@@ -101,7 +101,7 @@ architecture struct of jump_pipeline is
 
    begin
 
-    if (branch=unsigned(next_pc_in) and pipeline_valid_in = '1') then
+    if (branch=unsigned(next_pc_in) or pipeline_valid_in='0' ) then --we give correct one implying no change in next address
       correct<='1';
     else
        correct<='0';
