@@ -1031,10 +1031,10 @@ component add_pc is
 
 
 
-  process(decode_stall_out) --stall for stall_fetch_in --to be increased later
+  process(decode_stall_out,halt_out_RS) --stall for stall_fetch_in --to be increased later
 
    begin
-   if (decode_stall_out='1') then --in case of reset no stall
+   if (decode_stall_out='1' or halt_out_RS='1') then --in case of reset no stall
      stall_fetch_in<='1';
    else
      stall_fetch_in<='0';
@@ -1056,7 +1056,9 @@ component add_pc is
    
   --end process;
 
-  stall_decode_in<=decode_stall_out; --things to be appended later
+  stall_decode_in<=(decode_stall_out or halt_out_RS); --things to be appended later
+
+
 
   --
   --invalidate_fetch_in<='1';
