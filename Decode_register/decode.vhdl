@@ -68,19 +68,19 @@ begin
 		stall_out_var := '0';
 	
 	else
-		if (inst_1_valid_in = '1') then
-			if (Instr1_in(15 downto 12) = "1100" or Instr1_in(15 downto 12) = "1000" or Instr1_in(15 downto 12) = "1001") then
-				if (current_BTAG = "011") then
-					stall_out_var := '1';
-				else
-					stall_out_var := '0';
-				end if ;
-			else
-				stall_out_var := '0';
-			end if ;
-		else
-			stall_out_var := '0';
-		end if ;
+		--if (inst_1_valid_in = '1') then
+		--	if (Instr1_in(15 downto 12) = "1100" or Instr1_in(15 downto 12) = "1000" or Instr1_in(15 downto 12) = "1001") then
+		--		if (current_BTAG = "011") then
+		--			stall_out_var := '1';
+		--		else
+		--			stall_out_var := '0';
+		--		end if ;
+		--	else
+		--		stall_out_var := '0';
+		--	end if ;
+		--else
+		--	stall_out_var := '0';
+		--end if ;
 
 		if (inst_2_valid_in = '1') then
 			if(Instr2_in(15 downto 12) = "1100" or Instr2_in(15 downto 12) = "1000" or Instr2_in(15 downto 12) = "1001") then
@@ -305,143 +305,143 @@ begin
 									I1_BTAG_var := current_BTAG_var;
 									I1_self_tag_var := "000";
 
-									when "1100" =>
-									-- BEQ, But as only Instruction 2 is branch it will be irrelevant
-									-- Also we will never see current tag =111 case as stall out of decode will also run stall in of the decode also
-									I1_valid_var := inst_1_valid_in;
-									I1_op_code_var := Instr1_in(15 downto 12);
-									I1_op_cz_var := Instr1_in(1 downto 0);
-									I1_dest_code_var := Instr1_in(11 downto 9);
-									I1_operand_1_code_var := Instr1_in(11 downto 9);
-									I1_operand_2_code_var := Instr1_in(8 downto 6);
-									I1_Imm_var := Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(4 downto 0);
-									I1_PC_var := PC_in;
-									I1_Nxt_PC_var := std_logic_vector(unsigned(PC_in) + 1);
+									--when "1100" =>
+									---- BEQ, But as only Instruction 2 is branch it will be irrelevant
+									---- Also we will never see current tag =111 case as stall out of decode will also run stall in of the decode also
+									--I1_valid_var := inst_1_valid_in;
+									--I1_op_code_var := Instr1_in(15 downto 12);
+									--I1_op_cz_var := Instr1_in(1 downto 0);
+									--I1_dest_code_var := Instr1_in(11 downto 9);
+									--I1_operand_1_code_var := Instr1_in(11 downto 9);
+									--I1_operand_2_code_var := Instr1_in(8 downto 6);
+									--I1_Imm_var := Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(5) & Instr1_in(4 downto 0);
+									--I1_PC_var := PC_in;
+									--I1_Nxt_PC_var := std_logic_vector(unsigned(PC_in) + 1);
 
-									I1_BTAG_var := current_BTAG_var;
-									if (current_BTAG_var = "000") then
-										current_BTAG_var := "001";
-										I1_self_tag_var := "001";
+									--I1_BTAG_var := current_BTAG_var;
+									--if (current_BTAG_var = "000") then
+									--	current_BTAG_var := "001";
+									--	I1_self_tag_var := "001";
 									
-									elsif (current_BTAG_var = "001") then
-									 	current_BTAG_var := "011";
-										I1_self_tag_var := "011";
+									--elsif (current_BTAG_var = "001") then
+									-- 	current_BTAG_var := "011";
+									--	I1_self_tag_var := "011";
 									
-									elsif (current_BTAG_var = "010") then
-									 	current_BTAG_var := "011";
-										I1_self_tag_var := "011";
+									--elsif (current_BTAG_var = "010") then
+									-- 	current_BTAG_var := "011";
+									--	I1_self_tag_var := "011";
 									
-									elsif (current_BTAG_var = "011") then
-									 	current_BTAG_var := "111";
-										I1_self_tag_var := "111";
+									--elsif (current_BTAG_var = "011") then
+									-- 	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
 									
-									elsif (current_BTAG_var = "101") then
-									 	current_BTAG_var := "111";
-										I1_self_tag_var := "111";
+									--elsif (current_BTAG_var = "101") then
+									-- 	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
 									
-									elsif (current_BTAG_var = "110") then
-									 	current_BTAG_var := "111";
-										I1_self_tag_var := "111";
+									--elsif (current_BTAG_var = "110") then
+									-- 	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
 									
-									elsif (current_BTAG_var = "100") then
-									 	current_BTAG_var := "101";
-										I1_self_tag_var := "101";
-									else
-										current_BTAG_var := "111";
-										I1_self_tag_var := "111";
-									end if;	
+									--elsif (current_BTAG_var = "100") then
+									-- 	current_BTAG_var := "101";
+									--	I1_self_tag_var := "101";
+									--else
+									--	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
+									--end if;	
 									
-									when "1000" =>
-									-- JAL, But as only Instruction 2 is branch it will be irrelevant
-									-- Also we will never see current tag =111 case as stall out of decode will also run stall in of the decode also
-									I1_valid_var := inst_1_valid_in;
-									I1_op_code_var := Instr1_in(15 downto 12);
-									I1_op_cz_var := Instr1_in(1 downto 0);
-									I1_dest_code_var := Instr1_in(11 downto 9);
-									I1_operand_1_code_var := Instr1_in(8 downto 6);
-									I1_operand_2_code_var := Instr1_in(5 downto 3);
-									I1_Imm_var := Instr1_in(8 downto 0) & constant_zero_LHI;
-									I1_PC_var := PC_in;
-									I1_Nxt_PC_var := std_logic_vector(unsigned(PC_in) + 1);
+									--when "1000" =>
+									---- JAL, But as only Instruction 2 is branch it will be irrelevant
+									---- Also we will never see current tag =111 case as stall out of decode will also run stall in of the decode also
+									--I1_valid_var := inst_1_valid_in;
+									--I1_op_code_var := Instr1_in(15 downto 12);
+									--I1_op_cz_var := Instr1_in(1 downto 0);
+									--I1_dest_code_var := Instr1_in(11 downto 9);
+									--I1_operand_1_code_var := Instr1_in(8 downto 6);
+									--I1_operand_2_code_var := Instr1_in(5 downto 3);
+									--I1_Imm_var := Instr1_in(8 downto 0) & constant_zero_LHI;
+									--I1_PC_var := PC_in;
+									--I1_Nxt_PC_var := std_logic_vector(unsigned(PC_in) + 1);
 
-									I1_BTAG_var := current_BTAG_var;
-									if (current_BTAG_var = "000") then
-										current_BTAG_var := "001";
-										I1_self_tag_var := "001";
+									--I1_BTAG_var := current_BTAG_var;
+									--if (current_BTAG_var = "000") then
+									--	current_BTAG_var := "001";
+									--	I1_self_tag_var := "001";
 									
-									elsif (current_BTAG_var = "001") then
-									 	current_BTAG_var := "011";
-										I1_self_tag_var := "011";
+									--elsif (current_BTAG_var = "001") then
+									-- 	current_BTAG_var := "011";
+									--	I1_self_tag_var := "011";
 									
-									elsif (current_BTAG_var = "010") then
-									 	current_BTAG_var := "011";
-										I1_self_tag_var := "011";
+									--elsif (current_BTAG_var = "010") then
+									-- 	current_BTAG_var := "011";
+									--	I1_self_tag_var := "011";
 									
-									elsif (current_BTAG_var = "011") then
-									 	current_BTAG_var := "111";
-										I1_self_tag_var := "111";
+									--elsif (current_BTAG_var = "011") then
+									-- 	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
 									
-									elsif (current_BTAG_var = "101") then
-									 	current_BTAG_var := "111";
-										I1_self_tag_var := "111";
+									--elsif (current_BTAG_var = "101") then
+									-- 	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
 									
-									elsif (current_BTAG_var = "110") then
-									 	current_BTAG_var := "111";
-										I1_self_tag_var := "111";
+									--elsif (current_BTAG_var = "110") then
+									-- 	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
 									
-									elsif (current_BTAG_var = "100") then
-									 	current_BTAG_var := "101";
-										I1_self_tag_var := "101";
-									else
-										current_BTAG_var := "111";
-										I1_self_tag_var := "111";
-									end if;	
+									--elsif (current_BTAG_var = "100") then
+									-- 	current_BTAG_var := "101";
+									--	I1_self_tag_var := "101";
+									--else
+									--	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
+									--end if;	
 
-									when "1001" =>
-									-- JLR, But as only Instruction 2 is branch it will be irrelevant
-									-- Also we will never see current tag =111 case as stall out of decode will also run stall in of the decode also
-									I1_valid_var := inst_1_valid_in;
-									I1_op_code_var := Instr1_in(15 downto 12);
-									I1_op_cz_var := Instr1_in(1 downto 0);
-									I1_dest_code_var := Instr1_in(11 downto 9);
-									I1_operand_1_code_var := Instr1_in(8 downto 6);
-									I1_operand_2_code_var := Instr1_in(5 downto 3);
-									I1_Imm_var := constant_zero;
-									I1_PC_var := PC_in;
-									I1_Nxt_PC_var := std_logic_vector(unsigned(PC_in) + 1);
+									--when "1001" =>
+									---- JLR, But as only Instruction 2 is branch it will be irrelevant
+									---- Also we will never see current tag =111 case as stall out of decode will also run stall in of the decode also
+									--I1_valid_var := inst_1_valid_in;
+									--I1_op_code_var := Instr1_in(15 downto 12);
+									--I1_op_cz_var := Instr1_in(1 downto 0);
+									--I1_dest_code_var := Instr1_in(11 downto 9);
+									--I1_operand_1_code_var := Instr1_in(8 downto 6);
+									--I1_operand_2_code_var := Instr1_in(5 downto 3);
+									--I1_Imm_var := constant_zero;
+									--I1_PC_var := PC_in;
+									--I1_Nxt_PC_var := std_logic_vector(unsigned(PC_in) + 1);
 
-									I1_BTAG_var := current_BTAG_var;
-									if (current_BTAG_var = "000") then
-										current_BTAG_var := "001";
-										I1_self_tag_var := "001";
+									--I1_BTAG_var := current_BTAG_var;
+									--if (current_BTAG_var = "000") then
+									--	current_BTAG_var := "001";
+									--	I1_self_tag_var := "001";
 									
-									elsif (current_BTAG_var = "001") then
-									 	current_BTAG_var := "011";
-										I1_self_tag_var := "011";
+									--elsif (current_BTAG_var = "001") then
+									-- 	current_BTAG_var := "011";
+									--	I1_self_tag_var := "011";
 									
-									elsif (current_BTAG_var = "010") then
-									 	current_BTAG_var := "011";
-										I1_self_tag_var := "011";
+									--elsif (current_BTAG_var = "010") then
+									-- 	current_BTAG_var := "011";
+									--	I1_self_tag_var := "011";
 									
-									elsif (current_BTAG_var = "011") then
-									 	current_BTAG_var := "111";
-										I1_self_tag_var := "111";
+									--elsif (current_BTAG_var = "011") then
+									-- 	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
 									
-									elsif (current_BTAG_var = "101") then
-									 	current_BTAG_var := "111";
-										I1_self_tag_var := "111";
+									--elsif (current_BTAG_var = "101") then
+									-- 	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
 									
-									elsif (current_BTAG_var = "110") then
-									 	current_BTAG_var := "111";
-										I1_self_tag_var := "111";
+									--elsif (current_BTAG_var = "110") then
+									-- 	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
 									
-									elsif (current_BTAG_var = "100") then
-									 	current_BTAG_var := "101";
-										I1_self_tag_var := "101";
-									else
-										current_BTAG_var := "111";
-										I1_self_tag_var := "111";
-									end if;	
+									--elsif (current_BTAG_var = "100") then
+									-- 	current_BTAG_var := "101";
+									--	I1_self_tag_var := "101";
+									--else
+									--	current_BTAG_var := "111";
+									--	I1_self_tag_var := "111";
+									--end if;	
 
 									when others =>
 
