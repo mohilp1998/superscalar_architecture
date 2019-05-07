@@ -144,6 +144,44 @@ entity reservation_state is
        broadcast5_btag_in:in std_logic_vector(2 downto 0);
        
 
+       --ARF and zero and carry flags status
+
+       arf_rename_valid_out:out slv_array_t(0 to 7);-- not required if value is valid rename cannot be valid
+--signal arf_reg_name:array(0 to 29) of std_logic_vector(2 downto 0);
+       arf_reg_rename_out:out slv6_array_t(0 to 7);
+       arf_reg_value_out:out slv16_array_t(0 to 7);--refers to value stored 
+       arf_value_valid_out:out slv_array_t(0 to 7);
+       free_reg_out: out std_logic_vector (15 downto 0);--denotes which rename registers are free 
+
+
+       carry_value_valid_out:out std_logic;
+       zero_value_valid_out:out std_logic;
+
+       carry_value_out:out std_logic;
+       zero_value_out:out std_logic;
+
+
+
+       carry_rename_rf_out:out std_logic_vector(2 downto 0);--stores to which rename carry flag is currently renamed
+       zero_rename_rf_out: out std_logic_vector(2 downto 0); --stores to which rename zero flag is currently renamed
+
+       free_flag_zero_out:out std_logic;-- whether 2 zero registers are free
+       free_flag_carry_out:out std_logic;--whether 2 carry registers are free
+
+       free_rename_carry_out:out std_logic_vector(7 downto 0);--which of 7 rename carry flags are free
+       free_rename_zero_out:out std_logic_vector(7 downto 0);--which of 7 rename zero flags are free
+
+
+
+
+
+
+
+      
+
+
+
+
        --entry in ROB output
        
        curr_instr1_valid_rob_out:out std_logic;
@@ -3613,7 +3651,7 @@ process(reset_system,clk_input,stall_reservation_update,halt_out_internal)--ls p
 
    elsif (ls_instr_valid_out_internal(i)='1' and ls_scheduler_valid_out_internal(i)='1') then
 
-    if(i=to_integer(unsigned(jmp_done_number)) and ls_valid_done_in='1' ) then
+    if(i=to_integer(unsigned(ls_done_number)) and ls_valid_done_in='1' ) then
 
      ls_instr_valid_out_internal(i)<='0';
 
@@ -4999,6 +5037,37 @@ alu_btag_out<=alu_btag_out_internal;
 alu_orign_destn_out<=alu_orign_destn_out_internal;
 
 alu_curr_pc_out<=alu_curr_pc_out_internal;
+
+
+
+-----RRF and zero flag and carry modification
+
+
+arf_rename_valid_out <= arf_rename_valid;-- not required if value is valid rename cannot be valid
+--signal arf_reg_name:array(0 to 29) of std_logic_vector(2 downto 0);
+arf_reg_rename_out <= arf_reg_rename;
+arf_reg_value_out <= arf_reg_value;--refers to value stored 
+arf_value_valid_out <= arf_value_valid;
+free_reg_out <= free_reg;--denotes which rename registers are free 
+
+
+carry_value_valid_out <= carry_value_valid;
+zero_value_valid_out <= zero_value_valid;
+
+carry_value_out <= carry_value;
+zero_value_out <= zero_value;
+
+
+
+carry_rename_rf_out <= carry_rename_rf;--stores to which rename carry flag is currently renamed
+zero_rename_rf_out <= zero_rename_rf; --stores to which rename zero flag is currently renamed
+
+free_flag_zero_out <= free_flag_zero;-- whether 2 zero registers are free
+free_flag_carry_out <= free_flag_carry;--whether 2 carry registers are free
+
+free_rename_carry_out <= free_rename_carry;--which of 7 rename carry flags are free
+free_rename_zero_out <= free_rename_zero;--which of 7 rename zero flags are free
+
 
 
 
