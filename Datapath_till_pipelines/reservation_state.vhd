@@ -145,20 +145,27 @@ entity reservation_state is
        
 
        --entry in ROB output
-
+       
+       curr_instr1_valid_rob_out:out std_logic;
        curr_pc1_rob_out:out std_logic_vector(15 downto 0);
        destn_code1_rob_out:out std_logic_vector(2 downto 0);
        op_code1_rob_out:out std_logic_vector(3 downto 0);
        destn_rename1_rob_out:out std_logic_vector(5 downto 0);
        destn_rename_c1_rob_out:out std_logic_vector(2 downto 0);
        destn_rename_z1_rob_out:out std_logic_vector(2 downto 0);
+       destn_btag1_rob_out:out std_logic_vector(2 downto 0);
+       destn_self_tag1_rob_out:out std_logic_vector(2 downto 0);
 
+       
+       curr_instr2_valid_rob_out:out std_logic;
        curr_pc2_rob_out:out std_logic_vector(15 downto 0);
        destn_code2_rob_out:out std_logic_vector(2 downto 0);
        op_code2_rob_out:out std_logic_vector(3 downto 0);
        destn_rename2_rob_out:out std_logic_vector(5 downto 0);
        destn_rename_c2_rob_out:out std_logic_vector(2 downto 0);
        destn_rename_z2_rob_out:out std_logic_vector(2 downto 0);
+       destn_btag2_rob_out:out std_logic_vector(2 downto 0);
+       destn_self_tag2_rob_out:out std_logic_vector(2 downto 0);
 
 
 
@@ -4928,19 +4935,29 @@ end process;
 
 
 
+curr_instr1_valid_rob_out<=instr1_valid_in;
 curr_pc1_rob_out<=curr_pc1_in;
 destn_code1_rob_out<=opr3_code1_in;
 op_code1_rob_out<=op_code1_in;
 destn_rename1_rob_out<=first_free_rename(0);
 destn_rename_c1_rob_out<=first_free_rename_carry(0);
 destn_rename_z1_rob_out<=first_free_rename_zero(0);
+destn_btag1_rob_out<=btag1_in;
+destn_self_tag1_rob_out<=self1_tag_in;
 
+
+
+curr_instr2_valid_rob_out<=instr2_valid_in;
 curr_pc2_rob_out<=curr_pc2_in;
 destn_code2_rob_out<=opr3_code2_in;
 op_code2_rob_out<=op_code2_in;
 destn_rename2_rob_out<=first_free_rename(1);
 destn_rename_c2_rob_out<=first_free_rename_carry(1);
 destn_rename_z2_rob_out<=first_free_rename_zero(1);
+destn_btag2_rob_out<=btag2_in;
+destn_self_tag2_rob_out<=self2_tag_in;
+
+
 
 
  
