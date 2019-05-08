@@ -1,0 +1,130 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity top_level is (
+
+   top_clock:std_logic;
+   system_reset:in std_logic;-----------------------------------active high system reset
+   r0_out: out std_logic_vector(15 downto 0);
+   r1_out: out std_logic_vector(15 downto 0);
+   r2_out: out std_logic_vector(15 downto 0);
+   r3_out: out std_logic_vector(15 downto 0);
+   r4_out: out std_logic_vector(15 downto 0);
+   r5_out: out std_logic_vector(15 downto 0);
+   r6_out: out std_logic_vector(15 downto 0);
+   r7_out: out std_logic_vector(15 downto 0);
+   curr_pc: out std_logic_vector(15 downto 0)
+   )
+
+end entity;
+
+
+architecture struct of top_level is
+
+component memory_code is
+
+port  (clk : in std_logic;  
+        we  : in std_logic;   
+        a   : in std_logic_vector(15 downto 0);   
+        di  : in std_logic_vector(15 downto 0);   
+        do  : out std_logic_vector(31 downto 0)); 
+ end component memory_code;
+
+component fetch is
+
+port (
+	clk: in std_logic;
+	Mem_in: in std_logic_vector(31 downto 0);
+	PC_in: in std_logic_vector(15 downto 0);
+
+	stall_in: in std_logic;
+	instr_invalidate_in: in std_logic;
+	------------------------------------------------------------
+	inst_1_valid: out std_logic;
+	inst_2_valid: out std_logic;
+	Instr1: out std_logic_vector(15 downto 0);
+	Instr2: out std_logic_vector(15 downto 0);
+	PC: out std_logic_vector(15 downto 0)
+  ) ;
+
+  end component fetch;
+
+  component decode is
+
+   port (
+	clk: in std_logic;
+	inst_1_valid_in: in std_logic;
+	inst_2_valid_in: in std_logic;
+	Instr1_in: in std_logic_vector(15 downto 0);
+	Instr2_in: in std_logic_vector(15 downto 0);
+	PC_in: in std_logic_vector(15 downto 0);
+	Nxt_PC_in: in std_logic_vector(15 downto 0);
+
+	stall_in: in std_logic;
+	instr_invalidate_in: in std_logic;
+	------------------------------------------------------------
+	--Instruction 1
+	I1_valid: out std_logic;
+	I1_op_code: out std_logic_vector(3 downto 0);
+	I1_op_cz: out std_logic_vector(1 downto 0);
+	I1_dest_code: out std_logic_vector(2 downto 0);
+	I1_operand_1_code: out std_logic_vector(2 downto 0);
+	I1_operand_2_code: out std_logic_vector(2 downto 0);
+	I1_Imm: out std_logic_vector(15 downto 0);
+	I1_PC: out std_logic_vector(15 downto 0);
+	I1_Nxt_PC: out std_logic_vector(15 downto 0);
+	I1_BTAG: out std_logic_vector(2 downto 0);
+	I1_self_tag: out std_logic_vector(2 downto 0);
+
+	--Instruction 2
+	I2_valid: out std_logic;
+	I2_op_code: out std_logic_vector(3 downto 0);
+	I2_op_cz: out std_logic_vector(1 downto 0);
+	I2_dest_code: out std_logic_vector(2 downto 0);
+	I2_operand_1_code: out std_logic_vector(2 downto 0);
+	I2_operand_2_code: out std_logic_vector(2 downto 0);
+	I2_Imm: out std_logic_vector(15 downto 0);
+	I2_PC: out std_logic_vector(15 downto 0);
+	I2_Nxt_PC: out std_logic_vector(15 downto 0);
+	I2_BTAG: out std_logic_vector(2 downto 0);
+	I2_self_tag: out std_logic_vector(2 downto 0);
+
+	-----------------------------------
+	stall_out: out std_logic
+  );
+
+   end component decode;
+
+
+   component bit16_2x1 is 
+
+    port ( c_0 : in  STD_LOGIC;
+           d_0   : in  std_logic_vector(15 downto 0);
+           d_1   : in  std_logic_vector(15 downto 0);
+           o   : out std_logic_vector(15 downto 0));
+    end component bit16_2x1;
+
+
+  signal addr_to_mem:std_logic_vector(31 downto 0);
+  signal code_mem_op:std_logic_vector(15 downto 0);
+
+
+
+ begin
+ 
+ memory_instance: memory_code port map
+
+                        (
+                          clk=>top_level,
+                          we=>'0';
+                          a=>addr_to_mem,
+                          do=>code_mem_op,
+                          di=>(others=>'0'));
+
+
+
+
+
+
+end architecture struct;
