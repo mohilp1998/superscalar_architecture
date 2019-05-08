@@ -1,0 +1,106 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity jump_pipeline is
+  port(pipeline_valid_in: in std_logic;
+  		op_code_in: in std_logic_vector(3 downto 0);
+  		destn_rename_code_in: in std_logic_vector(5 downto 0);
+  		operand1: in std_logic_vector(15 downto 0);--refers to Ra
+  		operand2:in std_logic_vector(15 downto 0);--refers to Rb
+      operand3: in std_logic_vector(15 downto 0);--refers to immediate
+		  --c_flag_in:in std_logic;
+  		z_flag_in:in std_logic;
+  		--c_rename_in:in std_logic_vector(3 downto 0);
+  		z_rename_in: in std_logic_vector(3 downto 0);
+  		b_tag_in:in std_logic_vector(2 downto 0);
+  		orig_destn_in:in std_logic_vector(2 downto 0);
+  		--op_code_cz:in std_logic_vector(1 downto 0);
+      curr_pc_in:in std_logic_vector(15 downto 0);
+      next_pc_in: in std_logic_vector(15 downto 0);
+      self_branch_tag_in: in std_logic_vector(2 downto 0);
+  		data_out: out std_logic_vector(15 downto 0);
+      pipeline_valid_out: out std_logic;
+      op_code_out: out std_logic_vector(3 downto 0);
+  		destn_rename_code_out: out std_logic_vector(5 downto 0);
+   		--c_flag_out:out std_logic;
+  		z_flag_out:out std_logic;
+  		--c_rename_out:out std_logic_vector(3 downto 0);
+  		z_rename_out: out std_logic_vector(3 downto 0);
+  		b_tag_out:out std_logic_vector(2 downto 0);
+  		orig_destn_out:out std_logic_vector(2 downto 0);
+      curr_pc_out:out std_logic_vector(15 downto 0);
+      self_branch_tag_out:out std_logic_vector(2 downto 0);
+      branch_addr:out std_logic_vector(15 downto 0);
+      reg_write:out std_logic;
+      correct: out std_logic);
+end entity;
+
+
+architecture stuct of jump_pipeline is
+  
+  signal opr1:unsigned (15 downto 0):=(others=>'0');
+  signal opr2:unsigned (15 downto 0):=(others=>'0');
+  signal opr3:unsigned (15 downto 0):=(others=>'0');
+  signal opr3:unsigned (15 downto 0):=(others=>'0');
+  signal result:unsigned:='0';
+  signal incr:unsigned(15 downto 0):=to_unsigned(2, 16);
+  signal branch:unsigned(15 downto 0):=(others=>'0');
+
+  --signal 
+
+
+  begin
+   opr1<=unsigned(operand1);
+   opr2<=unsigned(operand2);
+   opr3<=unsigned(operand3);
+
+  process(op_code_in,opr1,opr2,opr3,curr_pc_in)
+  
+  begin
+
+   if (op_code_in="1100") then--BEQ instruction
+     reg_write<='0';
+     result<=(others<='0');
+     if(operand1=operand2) then--BEQ
+      branch<=(curr_pc_in+opr3);
+     else
+      branch<=(curr_pc_in+incr)
+       
+     end if;
+     
+   elsif (op_code_in="1000") then -----JAL instruction   
+    reg_write<='1';
+    result<=curr_pc_in;
+    branch<=(curr_pc_in+opr3);
+
+
+   else ------------------------------------------------------------------------JLR instr
+     reg_write<='1';
+     result<=curr_pc_in;
+     branch<=(opr2); 
+
+   end if;
+
+  end process; 
+
+  process(branch,next_pc_in) 
+
+   begin
+
+    if (branch=unsigned(next_pc_in)) then
+      correct<='1';
+    else
+       correct<='0';
+
+    end if;   
+
+  end process;
+             
+    
+
+
+    
+
+    
+  end architecture struct;
